@@ -16,3 +16,7 @@
 
 - feat/auth, refactor/home-layout
 - feat: build button component, fix indentation and spacing issues
+
+## dev
+
+1. `cp .env.example .env.dev`
