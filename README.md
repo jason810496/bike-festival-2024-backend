@@ -17,6 +17,19 @@
 - feat/auth, refactor/home-layout
 - feat: build button component, fix indentation and spacing issues
 
-## dev
+## dev setup
 
-1. `cp .env.example .env.dev`
+1. Make sure you have installed `make`, `go` and `docker-compose / docker compose` on your machine
+2. Copy `.env.example` to `.env.dev` and modify the environment variables if needed
+
+   ```bash
+   cp .env.example .env.dev
+   ```
+
+3. Run `make install` to install the tools
+   > Run only once when you start the development or the tools required to be updated
+4. Run `make dev-up` to start the development database and redis
+5. Run `make dev-migrate` to migrate the database
+6. Run `make serve` to start the development server with live reload
+   1. Webserver will be listening on [localhost:8000](http://localhost:8000), you may change the port in `.env.dev`
+7. Run `make dev-down` to stop the development database and redis
