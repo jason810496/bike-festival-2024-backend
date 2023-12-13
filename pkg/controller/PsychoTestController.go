@@ -9,19 +9,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type PhychoTestController struct {
+type PsychoTestController struct {
 	db *gorm.DB
 }
 
-func NewPhychoTestController(db *gorm.DB) *PhychoTestController {
-	return &PhychoTestController{db: db}
+func NewPsychoTestController(db *gorm.DB) *PsychoTestController {
+	return &PsychoTestController{db: db}
 }
 
-// create new phychological type
-func (controller *PhychoTestController) CreateType(context *gin.Context) {
-	new_type := context.Query("type")
+// CreateType create new psychological type
+func (controller *PsychoTestController) CreateType(context *gin.Context) {
+	newType := context.Query("type")
 
-	if new_type == "" {
+	if newType == "" {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
 			"message": "Missing or invalid parameters",
@@ -29,8 +29,8 @@ func (controller *PhychoTestController) CreateType(context *gin.Context) {
 		return
 	}
 
-	record := model.PhychoTest{
-		Type:  new_type,
+	record := model.PsychoTest{
+		Type:  newType,
 		Count: 0,
 	}
 
@@ -50,12 +50,12 @@ func (controller *PhychoTestController) CreateType(context *gin.Context) {
 	})
 }
 
-// Add the count of selected phychological type
-func (controller *PhychoTestController) Type_AddCount(context *gin.Context) {
-	test_type := context.PostForm("type")
+// TypeAddCount Add the count of selected psychological type
+func (controller *PsychoTestController) TypeAddCount(context *gin.Context) {
+	testType := context.PostForm("type")
 	count, _ := strconv.Atoi(context.PostForm("count"))
 
-	if test_type == "" || count == 0 {
+	if testType == "" || count == 0 {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
 			"message": "Missing or invalid parameters",
@@ -63,44 +63,44 @@ func (controller *PhychoTestController) Type_AddCount(context *gin.Context) {
 		return
 	}
 
-	var phycho_type *model.PhychoTest
+	var psychoType *model.PsychoTest
 
-	controller.db.Where("type = ?", test_type).First(&phycho_type)
+	controller.db.Where("type = ?", testType).First(&psychoType)
 
-	if phycho_type == nil {
+	if psychoType == nil {
 		context.JSON(http.StatusNotFound, gin.H{
 			"status":  "Failed",
-			"message": "Phychological type doesn't exist",
+			"message": "Psychological type doesn't exist",
 		})
 		return
 	}
 
-	phycho_type.Count += count
-	controller.db.Save(&phycho_type)
+	psychoType.Count += count
+	controller.db.Save(&psychoType)
 	context.JSON(http.StatusOK, gin.H{
 		"status":  "Success",
 		"message": "Successfully add the count of the type",
 	})
 }
 
-// retrieve the percentage of each type
-func (controller *PhychoTestController) CountTypePercentage(context *gin.Context) {
-	var query_types []*model.PhychoTest
+// CountTypePercentage retrieve the percentage of each type
+func (controller *PsychoTestController) CountTypePercentage(context *gin.Context) {
+	var queryTypes []*model.PsychoTest
 
-	controller.db.Find(&query_types)
+	controller.db.Find(&queryTypes)
 
-	if len(query_types) == 0 {
+	if len(queryTypes) == 0 {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
-			"message": "No existing phychological test",
+			"message": "No existing psychological test",
 		})
 		return
 	}
 
-	phycho_types := make(map[string]float64, len(query_types))
+	psychoTypes := make(map[string]float64, len(queryTypes))
 	sum := 0
 
-	for _, t := range query_types {
+	for _, t := range queryTypes {
 		sum += t.Count
 	}
 
@@ -111,12 +111,12 @@ func (controller *PhychoTestController) CountTypePercentage(context *gin.Context
 		})
 	}
 
-	for _, t := range query_types {
-		phycho_types[t.Type] = float64(t.Count) / float64(sum) * 100
+	for _, t := range queryTypes {
+		psychoTypes[t.Type] = float64(t.Count) / float64(sum) * 100
 	}
 
 	context.JSON(http.StatusOK, gin.H{
 		"status": "Success",
-		"data":   phycho_types,
+		"data":   psychoTypes,
 	})
 }
