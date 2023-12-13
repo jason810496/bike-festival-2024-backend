@@ -11,16 +11,16 @@ COPY . .
 RUN go mod download
 
 # Set CGO_ENABLED to 1
-ENV CGO_ENABLED=1
+# ENV CGO_ENABLED=1
 
 # Build the Go application
-RUN go build -o /app/app ./main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -o /app/main ./cmd/main.go
 
 # Runtime Stage
 FROM busybox AS runtime
 
 # Copy the binary from the build stage to the runtime stage
-COPY --from=build /app/app /app
+COPY --from=build /app/main /app
 
 # Set the entry point to execute the binary directly
 ENTRYPOINT ["/app"]

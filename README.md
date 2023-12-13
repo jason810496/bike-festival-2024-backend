@@ -5,7 +5,7 @@
 - feat: 新增/修改功能 (feature)。
 - fix: 修補 bug (bug fix)。
 - docs: 文件 (documentation)。
-- style: 格式 (不影響程式碼運行的變動 white-space, formatting, missing semi colons, etc)。
+- style: 格式 (不影響程式碼運行的變動 white-space, formatting, missing semicolons, etc.)。
 - refactor: 重構 (既不是新增功能，也不是修補 bug 的程式碼變動)。
 - perf: 改善效能 (A code change that improves performance)。
 - test: 增加測試 (when adding missing tests)。
