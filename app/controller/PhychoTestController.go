@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"main/model"
+	"main/app/model"
 	"net/http"
 	"strconv"
 
