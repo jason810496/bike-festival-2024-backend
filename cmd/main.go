@@ -3,23 +3,24 @@ package main
 import (
 	"main/pkg/config"
 	"main/pkg/controller"
-	"main/pkg/model"
 	"main/pkg/router"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	db := config.DatabaseConnection()
-	db.Table("phycho_tests").AutoMigrate(&model.PhychoTest{})
-	db.Table("calender").AutoMigrate(&model.Calender{})
+	// init config
+	app := config.App("config.yaml")
 
 	// init controller
-	phycho_controller := controller.NewPhychoTestController(db)
+	psychoController := controller.NewPsychoTestController(app.Conn)
 
 	// init router
 	route := gin.Default()
-	router.RegisterRouter_PhychoTest(phycho_controller, route)
+	router.RegisterRouterPsychoTest(psychoController, route)
 
-	route.Run(":5000")
+	err := route.Run(":5000")
+	if err != nil {
+		panic(err)
+	}
 }

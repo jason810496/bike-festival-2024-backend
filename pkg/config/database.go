@@ -7,16 +7,14 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	host     = "bike-db"
-	port     = 5432
-	user     = "test_user"
-	password = "test_password"
-	dbName   = "postgres"
-)
-
-func DatabaseConnection() *gorm.DB {
-	sqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
+func NewDatabaseConnection(setting *Setting) *gorm.DB {
+	sqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		setting.Database.Host,
+		setting.Database.Port,
+		setting.Database.User,
+		setting.Database.Password,
+		setting.Database.DBName,
+	)
 	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
 	if err != nil {
 		panic(err)
