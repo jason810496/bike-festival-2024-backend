@@ -14,7 +14,7 @@ RUN go mod download
 # ENV CGO_ENABLED=1
 
 # Build the Go application
-RUN CGO_ENABLED=1 GOOS=linux go build -o /app/main ./main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -o /app/main ./cmd/main.go
 
 # Runtime Stage
 FROM busybox AS runtime

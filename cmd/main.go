@@ -1,10 +1,10 @@
 package main
 
 import (
-	"main/app/config"
-	"main/app/controller"
-	"main/app/model"
-	"main/app/router"
+	"main/pkg/config"
+	"main/pkg/controller"
+	"main/pkg/model"
+	"main/pkg/router"
 
 	"github.com/gin-gonic/gin"
 )

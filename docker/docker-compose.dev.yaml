@@ -3,7 +3,7 @@ version: "3.7"
 services:
   app:
     build:
-      context: ../app
+      context: ../
       dockerfile: Dockerfile
     image: bike-app
     container_name: bike-app
