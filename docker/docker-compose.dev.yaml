@@ -26,7 +26,7 @@ services:
       POSTGRES_USER: ${APP_DB_USERNAME}
       POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
     ports:
-      - 5432:5432
+      - "5432:5432"
     networks:
       - bike-networks
 
