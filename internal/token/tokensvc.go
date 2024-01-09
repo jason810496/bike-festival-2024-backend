@@ -16,7 +16,7 @@ func CreateRefreshToken(user *model.User, secret string, expiry int64) (refreshT
 			UserID: user.ID,
 		},
 		RegisteredClaims: jwt.RegisteredClaims{
-			ID:        uuid.New().String(), // for traceability
+			ID:        uuid.New().String(),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(expiry) * time.Second)),
 		},
 	}
