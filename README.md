@@ -1,5 +1,17 @@
 # Bike-Festival-2024
 
+## Line Login
+
+### Offical Document
+
+- [integrate line login](https://developers.line.biz/en/docs/line-login/integrate-line-login/)
+
+### Tutorial
+
+#### 1. [[Golang][LINE][教學] 導入 LINE Login 到你的商業網站之中，並且加入官方帳號為好友](https://www.evanlin.com/line-login/)
+
+- [github](https://github.com/line/line-bot-sdk-go)
+
 ## Branch/Commit Type
 
 - feat: 新增/修改功能 (feature)。
