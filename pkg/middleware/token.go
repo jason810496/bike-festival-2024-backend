@@ -7,8 +7,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	tokensvc "main/internal/token"
-	"main/pkg/model"
+	tokensvc "bikefest/internal/token"
+	"bikefest/pkg/model"
 
 	"github.com/gin-gonic/gin"
 )

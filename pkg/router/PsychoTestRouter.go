@@ -1,7 +1,7 @@
 package router
 
 import (
-	"main/pkg/controller"
+	"bikefest/pkg/controller"
 
 	"github.com/gin-gonic/gin"
 )

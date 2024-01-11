@@ -1,8 +1,8 @@
 package tokensvc
 
 import (
+	"bikefest/pkg/model"
 	"fmt"
-	"main/pkg/model"
 	"time"
 
 	"github.com/google/uuid"

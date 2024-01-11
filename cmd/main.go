@@ -1,9 +1,9 @@
 package main
 
 import (
-	"main/pkg/config"
-	"main/pkg/controller"
-	"main/pkg/router"
+	"bikefest/pkg/config"
+	"bikefest/pkg/controller"
+	"bikefest/pkg/router"
 
 	"github.com/gin-gonic/gin"
 )

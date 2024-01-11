@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"main/pkg/model"
+	"bikefest/pkg/model"
 	"net/http"
 	"strconv"
 
