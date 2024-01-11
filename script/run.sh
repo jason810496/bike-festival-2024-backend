@@ -24,9 +24,9 @@ function export_env() {
 
     unamestr=$(uname)
     if [ "$unamestr" = 'Linux' ]; then
-        export "$(grep -v '^#' "$env_file" | xargs -d '\n')"
+        export $(grep -v '^#' $env_file | xargs -d '\n')
     elif [ "$unamestr" = 'FreeBSD' ] || [ "$unamestr" = 'Darwin' ]; then
-        export "$(grep -v '^#' "$env_file" | xargs -0)"
+        export $(grep -v '^#' $env_file | xargs -0)
     fi
 }
 
@@ -59,14 +59,13 @@ action=$2
 # Switch case to handle the different command options
 case "$action" in
     start|stop|teardown)
-        export_env "$mode"
+        export_env $mode
         if [ "$action" = "start" ]; then
-            # shellcheck disable=SC2068
-            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose."${mode}".yaml up -d ${@:3}
+            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose.${mode}.yaml up -d ${@:3}
         elif [ "$action" = "stop" ]; then
-            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose."${mode}".yaml down
+            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose.${mode}.yaml down 
         elif [ "$action" = "teardown" ]; then
-            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose."${mode}".yaml down --remove-orphans -v
+            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose.${mode}.yaml down --remove-orphans -v
             echo "*** WARNING ***"
             echo "Please run 'sudo rm -rf docker/volumes' by yourself to remove the persistent volumes"
         else
@@ -76,7 +75,7 @@ case "$action" in
         ;;
 
     migrate|run|serve|test)
-        export_env "$mode"
+        export_env $mode
         if [ "$action" = "migrate" ]; then
             go run ./cmd/migrate/migrate.go
         elif [ "$action" = "run" ]; then

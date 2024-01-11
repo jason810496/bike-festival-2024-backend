@@ -14,6 +14,8 @@ help:  ## Show help message.
 install: ## Install the dependencies
 	./script/run.sh install
 
+build:
+	go build -v ./...
 
 serve: generate ## Serve the application with hot reload in dev mode
 	./script/run.sh dev serve
@@ -41,3 +43,6 @@ stage-up: ## Start the container for stage environment
 
 test: ## Run the tests
 	./script/run.sh dev test
+
+run: ## Run the application
+	./script/run.sh dev run
