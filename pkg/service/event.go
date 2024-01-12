@@ -13,7 +13,7 @@ type EventServiceImpl struct {
 	cache *redis.Client
 }
 
-func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit uint64) (events []model.Event, err error) {
+func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit uint64) (events []*model.Event, err error) {
 	err = es.db.WithContext(ctx).Limit(int(limit)).Offset(int((page - 1) * limit)).Find(&events).Error
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (es *EventServiceImpl) FindByID(ctx context.Context, id string) (event *mod
 	return
 }
 
-func (es *EventServiceImpl) FindByUserID(ctx context.Context, userID string) (events []model.Event, err error) {
+func (es *EventServiceImpl) FindByUserID(ctx context.Context, userID string) (events []*model.Event, err error) {
 	err = es.db.WithContext(ctx).Where(&model.Event{UserID: userID}).Find(&events).Error
 	if err != nil {
 		return nil, err

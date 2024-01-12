@@ -44,9 +44,9 @@ type EventListResponse struct {
 }
 
 type EventService interface {
-	FindAll(ctx context.Context, page, limit uint64) ([]Event, error)
+	FindAll(ctx context.Context, page, limit uint64) ([]*Event, error)
 	FindByID(ctx context.Context, id string) (*Event, error)
-	FindByUserID(ctx context.Context, userID string) ([]Event, error)
+	FindByUserID(ctx context.Context, userID string) ([]*Event, error)
 	Store(ctx context.Context, event *Event) error
 	Update(ctx context.Context, event *Event) (rowAffected int64, err error)
 	Delete(ctx context.Context, event *Event) (rowAffected int64, err error)

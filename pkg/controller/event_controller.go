@@ -22,7 +22,7 @@ func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 		})
 	}
 
-	c.JSON(200, model.Response{
+	c.JSON(200, model.EventListResponse{
 		Data: events,
 	})
 }
@@ -36,7 +36,7 @@ func (ctrl *EventController) GetEventByID(c *gin.Context) {
 		})
 	}
 
-	c.JSON(200, model.Response{
+	c.JSON(200, model.EventResponse{
 		Data: event,
 	})
 }
@@ -64,7 +64,7 @@ func (ctrl *EventController) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, model.Response{
+	c.JSON(200, model.EventResponse{
 		Data: newEvent,
 	})
 }
@@ -100,7 +100,7 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, model.Response{
+	c.JSON(200, model.EventResponse{
 		Data: event,
 	})
 }
