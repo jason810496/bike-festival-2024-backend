@@ -13,6 +13,7 @@ help:  ## Show help message.
 
 install: ## Install the dependencies
 	./script/run.sh install
+	@go install github.com/swaggo/swag/cmd/swag@latest
 
 build:
 	go build -v ./...
@@ -46,3 +47,6 @@ test: ## Run the tests
 
 run: ## Run the application
 	./script/run.sh dev run
+
+docs: install ## Generate the swagger docs
+	swag init --parseDependency --parseInternal -g ./cmd/main.go

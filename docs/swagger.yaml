@@ -1,0 +1,121 @@
+definitions:
+  bikefest_pkg_model.Event:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      eventDetail:
+        description: the `EventDetail` field store the event detail in json format,
+          this would be parsed when send to line message API
+        type: string
+      eventID:
+        description: the event id is defne at the frontend
+        type: string
+      eventTimeEnd:
+        type: string
+      eventTimeStart:
+        type: string
+      id:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: string
+    type: object
+  bikefest_pkg_model.Response:
+    properties:
+      data: {}
+      msg:
+        type: string
+    type: object
+  bikefest_pkg_model.User:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      events:
+        description: 'TODO: add more user info for line login and line message API
+          identity'
+        items:
+          $ref: '#/definitions/bikefest_pkg_model.Event'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  bikefest_pkg_model.UserResponse:
+    properties:
+      data:
+        $ref: '#/definitions/bikefest_pkg_model.User'
+      msg:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /user/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a user's information by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User successfully retrieved
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.UserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Get user by ID
+      tags:
+      - User
+  /user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Fetches the profile of a user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profile successfully retrieved
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.UserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Profile
+      tags:
+      - User
+swagger: "2.0"
