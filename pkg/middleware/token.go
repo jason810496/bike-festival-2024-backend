@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func AuthMiddleware(secret string, cache *redis.Client) gin.HandlerFunc {
+func AuthMiddleware(accessSecret string, cache *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		bearerToken := strings.Split(authHeader, " ")
@@ -24,7 +24,7 @@ func AuthMiddleware(secret string, cache *redis.Client) gin.HandlerFunc {
 			return
 		}
 		authToken := bearerToken[1]
-		claims, err := tokensvc.ExtractCustomClaimsFromToken(&authToken, secret)
+		claims, err := tokensvc.ExtractCustomClaimsFromToken(&authToken, accessSecret)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
 				Msg: err.Error(),
