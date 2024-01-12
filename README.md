@@ -2,7 +2,7 @@
 
 ## Line Login
 
-### Offical Document
+### Official Document
 
 - [integrate line login](https://developers.line.biz/en/docs/line-login/integrate-line-login/)
 

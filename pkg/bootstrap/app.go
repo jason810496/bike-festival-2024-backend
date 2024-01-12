@@ -74,7 +74,7 @@ func (app *Application) Run() {
 		log.Fatalf("Error starting server: %v", err)
 
 	case <-shutdown:
-		log.Println("shuting down...")
+		log.Println("shutting down...")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
