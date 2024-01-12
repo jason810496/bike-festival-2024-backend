@@ -2,6 +2,7 @@ package service
 
 import (
 	"bikefest/pkg/model"
+	"context"
 
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -45,22 +46,31 @@ func (es *EventService) Store(ctx context.Context, event *model.Event) error {
 	return nil
 }
 
-func (es *EventService) Update(ctx context.Context, event *model.Event) error {
-	err := es.db.WithContext(ctx).Updates(event).Error
+func (es *EventService) Update(ctx context.Context, event *model.Event) (rowAffected int64, err error) {
+	res := es.db.WithContext(ctx).Model(event).Updates(event)
+	rowAffected, err = res.RowsAffected, res.Error
 	if err != nil {
-		return err
+		return 0, err
 	}
-	// TODO: update event time to distributed scheduler
-	return nil
+	return
 }
 
-func (es *EventService) Delete(ctx context.Context, event *model.Event) error {
-	err := es.db.WithContext(ctx).Delete(event).Error
+func (es *EventService) Delete(ctx context.Context, event *model.Event) (rowAffected int64, err error) {
+	res := es.db.WithContext(ctx).Delete(event)
+	rowAffected, err = res.RowsAffected, res.Error
 	if err != nil {
-		return err
+		return 0, err
 	}
-	//TODO: delete event from distributed scheduler
-	return nil
+	return
+}
+
+func (es *EventService) DeleteByUser(ctx context.Context, userID string, eventID string) (rowAffected int64, err error) {
+	res := es.db.WithContext(ctx).Where(&model.Event{UserID: userID, EventID: eventID}).Delete(&model.Event{})
+	rowAffected, err = res.RowsAffected, res.Error
+	if err != nil {
+		return 0, err
+	}
+	return
 }
 
 func NewEventService(db *gorm.DB, cache *redis.Client) model.EventService {
