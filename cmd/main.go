@@ -1,26 +1,27 @@
 package main
 
 import (
-	"bikefest/pkg/config"
-	"bikefest/pkg/controller"
+	"bikefest/pkg/bootstrap"
 	"bikefest/pkg/router"
-
-	"github.com/gin-gonic/gin"
+	"bikefest/pkg/service"
 )
 
 func main() {
 	// init config
-	app := config.App("config.yaml")
+	app := bootstrap.App()
 
-	// init controller
-	psychoController := controller.NewPsychoTestController(app.Conn)
+	// init services
+	userService := service.NewUserService(app.Conn, app.Cache)
+	eventService := service.NewEventService(app.Conn, app.Cache)
 
-	// init router
-	route := gin.Default()
-	router.RegisterRouterPsychoTest(psychoController, route)
-
-	err := route.Run(":5000")
-	if err != nil {
-		panic(err)
+	services := &router.Services{
+		UserService:  userService,
+		EventService: eventService,
 	}
+
+	// init routes
+	router.RegisterRoutes(app, services)
+
+	// run app
+	app.Run()
 }
