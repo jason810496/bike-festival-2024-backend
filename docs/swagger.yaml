@@ -1,4 +1,11 @@
 definitions:
+  bikefest_pkg_model.CreateFakeUserRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   bikefest_pkg_model.Event:
     properties:
       createdAt:
@@ -23,9 +30,30 @@ definitions:
       userID:
         type: string
     type: object
+  bikefest_pkg_model.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
   bikefest_pkg_model.Response:
     properties:
       data: {}
+      msg:
+        type: string
+    type: object
+  bikefest_pkg_model.Token:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  bikefest_pkg_model.TokenResponse:
+    properties:
+      data:
+        $ref: '#/definitions/bikefest_pkg_model.Token'
       msg:
         type: string
     type: object
@@ -46,6 +74,15 @@ definitions:
       name:
         type: string
       updatedAt:
+        type: string
+    type: object
+  bikefest_pkg_model.UserListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/bikefest_pkg_model.User'
+        type: array
+      msg:
         type: string
     type: object
   bikefest_pkg_model.UserResponse:
@@ -91,6 +128,63 @@ paths:
       summary: Get user by ID
       tags:
       - User
+  /user/login/{user_id}:
+    get:
+      consumes:
+      - application/json
+      description: Simulates a login process for a user by generating fake access
+        and refresh tokens
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful, tokens generated
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.TokenResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Fake Login
+      tags:
+      - User
+  /user/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logs out a user by invalidating their authentication token
+      parameters:
+      - description: Bearer [token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "401":
+          description: 'Unauthorized: Invalid token format'
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: User logout
+      tags:
+      - User
   /user/profile:
     get:
       consumes:
@@ -116,6 +210,89 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Profile
+      tags:
+      - User
+  /user/refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: Refreshes the access and refresh tokens for a user
+      parameters:
+      - description: Refresh Token
+        in: body
+        name: refreshToken
+        required: true
+        schema:
+          $ref: '#/definitions/bikefest_pkg_model.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access and Refresh Tokens successfully generated
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.TokenResponse'
+        "400":
+          description: Bad Request - Invalid request format
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "401":
+          description: Unauthorized - Invalid or expired refresh token
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error - Error generating tokens
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Refresh User Token
+      tags:
+      - Authentication
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a fake user for testing purposes
+      parameters:
+      - description: Create Fake User Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bikefest_pkg_model.CreateFakeUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Fake register successful
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "400":
+          description: Bad Request - Invalid input data
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Fake Register
+      tags:
+      - User
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users successfully retrieved
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.UserListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Get Users
       tags:
       - User
 swagger: "2.0"

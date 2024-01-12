@@ -15,6 +15,93 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/user/login/{user_id}": {
+            "get": {
+                "description": "Simulates a login process for a user by generating fake access and refresh tokens",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Fake Login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful, tokens generated",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.TokenResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/logout": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Logs out a user by invalidating their authentication token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User logout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Invalid token format",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/user/profile": {
             "get": {
                 "security": [
@@ -47,6 +134,104 @@ const docTemplate = `{
                         "description": "Profile successfully retrieved",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.UserResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/refresh_token": {
+            "post": {
+                "description": "Refreshes the access and refresh tokens for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Refresh User Token",
+                "parameters": [
+                    {
+                        "description": "Refresh Token",
+                        "name": "refreshToken",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Access and Refresh Tokens successfully generated",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid request format",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - Invalid or expired refresh token",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Error generating tokens",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/register": {
+            "post": {
+                "description": "Register a fake user for testing purposes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Fake Register",
+                "parameters": [
+                    {
+                        "description": "Create Fake User Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.CreateFakeUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fake register successful",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input data",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
                     },
                     "500": {
@@ -95,9 +280,49 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users": {
+            "get": {
+                "description": "Retrieves a list of users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Users",
+                "responses": {
+                    "200": {
+                        "description": "List of users successfully retrieved",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.UserListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "bikefest_pkg_model.CreateFakeUserRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "bikefest_pkg_model.Event": {
             "type": "object",
             "properties": {
@@ -132,10 +357,43 @@ const docTemplate = `{
                 }
             }
         },
+        "bikefest_pkg_model.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "refresh_token"
+            ],
+            "properties": {
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
         "bikefest_pkg_model.Response": {
             "type": "object",
             "properties": {
                 "data": {},
+                "msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "bikefest_pkg_model.Token": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "bikefest_pkg_model.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/bikefest_pkg_model.Token"
+                },
                 "msg": {
                     "type": "string"
                 }
@@ -164,6 +422,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "bikefest_pkg_model.UserListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/bikefest_pkg_model.User"
+                    }
+                },
+                "msg": {
                     "type": "string"
                 }
             }
