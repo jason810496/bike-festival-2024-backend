@@ -15,6 +15,6 @@ func RegisterUserRoutes(app *bootstrap.Application, controller *controller.UserC
 	r.POST("/refresh_token", authMiddleware, controller.RefreshToken)
 	r.GET("", controller.GetUsers)
 	r.POST("/logout", authMiddleware, controller.Logout)
+	r.GET("/login/:user_id", controller.FakeLogin)
 	r.POST("/register", controller.FakeRegister)
-	r.POST("/login", controller.FakeLogin)
 }

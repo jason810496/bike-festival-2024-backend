@@ -73,6 +73,18 @@ func (ctrl *UserController) GetUserByID(c *gin.Context) {
 	})
 }
 
+// RefreshToken godoc
+// @Summary Refresh User Token
+// @Description Refreshes the access and refresh tokens for a user
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param refreshToken body model.RefreshTokenRequest true "Refresh Token"
+// @Success 200 {object} model.TokenResponse "Access and Refresh Tokens successfully generated"
+// @Failure 400 {object} model.Response "Bad Request - Invalid request format"
+// @Failure 401 {object} model.Response "Unauthorized - Invalid or expired refresh token"
+// @Failure 500 {object} model.Response "Internal Server Error - Error generating tokens"
+// @Router /user/refresh_token [post]
 func (ctrl *UserController) RefreshToken(c *gin.Context) {
 	var request model.RefreshTokenRequest
 
@@ -119,6 +131,15 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 	})
 }
 
+// GetUsers godoc
+// @Summary Get Users
+// @Description Retrieves a list of users
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.UserListResponse "List of users successfully retrieved"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /users [get]
 func (ctrl *UserController) GetUsers(c *gin.Context) {
 	// page, limit := RetrievePagination(c)
 	users, err := ctrl.userSvc.ListUsers(c)
@@ -134,6 +155,18 @@ func (ctrl *UserController) GetUsers(c *gin.Context) {
 	})
 }
 
+// Logout godoc
+// @Summary User logout
+// @Description Logs out a user by invalidating their authentication token
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param Authorization header string true "Bearer [token]"
+// @Success 200 {object} model.Response "Logout successful"
+// @Failure 401 {object} model.Response "Unauthorized: Invalid token format"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /user/logout [post]
 func (ctrl *UserController) Logout(c *gin.Context) {
 	// TODO: need to discuss where to read the token from (header or body or cookie)
 	authHeader := c.GetHeader("Authorization")
@@ -157,6 +190,16 @@ func (ctrl *UserController) Logout(c *gin.Context) {
 	})
 }
 
+// FakeLogin godoc
+// @Summary Fake Login
+// @Description Simulates a login process for a user by generating fake access and refresh tokens
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param user_id path string true "User ID"
+// @Success 200 {object} model.TokenResponse "Login successful, tokens generated"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /user/login/{user_id} [get]
 func (ctrl *UserController) FakeLogin(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -176,7 +219,7 @@ func (ctrl *UserController) FakeLogin(c *gin.Context) {
 		return
 	}
 
-	loginResponse := model.Token{
+	loginResponse := &model.Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
@@ -190,6 +233,17 @@ func (ctrl *UserController) FakeLogin(c *gin.Context) {
 	c.SetCookie("refresh_token", strconv.FormatInt(ctrl.env.JWT.AccessTokenExpiry, 10), 3600, "/", "", false, true)
 }
 
+// FakeRegister godoc
+// @Summary Fake Register
+// @Description Register a fake user for testing purposes
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param request body model.CreateFakeUserRequest true "Create Fake User Request"
+// @Success 200 {object} model.Response "Fake register successful"
+// @Failure 400 {object} model.Response "Bad Request - Invalid input data"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /user/register [post]
 func (ctrl *UserController) FakeRegister(c *gin.Context) {
 	var request model.CreateFakeUserRequest
 
