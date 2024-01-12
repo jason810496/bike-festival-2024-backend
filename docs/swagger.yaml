@@ -1,4 +1,20 @@
 definitions:
+  bikefest_pkg_model.CreateEventRequest:
+    properties:
+      event_detail:
+        type: string
+      event_id:
+        type: string
+      event_time_end:
+        type: string
+      event_time_start:
+        type: string
+      user_id:
+        type: string
+    required:
+    - event_id
+    - user_id
+    type: object
   bikefest_pkg_model.CreateFakeUserRequest:
     properties:
       name:
@@ -28,6 +44,22 @@ definitions:
       updatedAt:
         type: string
       userID:
+        type: string
+    type: object
+  bikefest_pkg_model.EventListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/bikefest_pkg_model.Event'
+        type: array
+      msg:
+        type: string
+    type: object
+  bikefest_pkg_model.EventResponse:
+    properties:
+      data:
+        $ref: '#/definitions/bikefest_pkg_model.Event'
+      msg:
         type: string
     type: object
   bikefest_pkg_model.RefreshTokenRequest:
@@ -103,6 +135,184 @@ definitions:
 info:
   contact: {}
 paths:
+  /event:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all events with pagination
+      parameters:
+      - description: Page number for pagination
+        in: query
+        name: page
+        type: integer
+      - description: Number of items per page for pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of events
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Get all events
+      tags:
+      - Event
+    post:
+      consumes:
+      - application/json
+      description: Subscribes a user to an event with the provided details
+      parameters:
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      - description: Event Subscription Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/bikefest_pkg_model.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully subscribed to the event
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventResponse'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Subscribe to an event
+      tags:
+      - Event
+  /event/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an event using its unique ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event successfully retrieved
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Get event by ID
+      tags:
+      - Event
+    put:
+      consumes:
+      - application/json
+      description: Updates an event by ID with new details
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Event Update Information
+        in: body
+        name: event
+        required: true
+        schema:
+          $ref: '#/definitions/bikefest_pkg_model.CreateEventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event successfully updated
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventResponse'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Update an event
+      tags:
+      - Events
+  /event/user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of events associated with a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of events associated with the user
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth // include this line if the endpoint is protected by an API key or other security mechanism: []
+      summary: Get User Events
+      tags:
+      - Event
+  /events/{event_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a specific event by its ID for a given user
+      parameters:
+      - description: User ID
+        in: header
+        name: user_id
+        required: true
+        type: string
+      - description: Event ID
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event successfully deleted
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete event
+      tags:
+      - Event
   /user/{user_id}:
     get:
       consumes:
