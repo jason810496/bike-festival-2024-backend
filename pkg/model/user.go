@@ -11,6 +11,8 @@ type User struct {
 	gorm.Model
 	ID   string `json:"id" gorm:"type:varchar(36);primary_key"`
 	Name string `json:"name" gorm:"type:varchar(255);index"`
+	// TODO: add more user info for line login and line message API identity
+	Events []Event `json:"events" gorm:"foreignKey:UserID;references:ID"`
 }
 
 func (u *User) BeforeCreate(*gorm.DB) error {
