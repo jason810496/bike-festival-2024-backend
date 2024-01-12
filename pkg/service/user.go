@@ -13,6 +13,7 @@ import (
 
 func NewUserService(db *gorm.DB, cache *redis.Client) model.UserService {
 	return &UserServiceImpl{
+		db:    db,
 		cache: cache,
 	}
 }
