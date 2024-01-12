@@ -10,11 +10,19 @@ services:
       POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
     ports:
       - "5432:5432"
+    networks:
+      - bike-networks
 
   redis:
     image: redis:latest
     restart: always
     environment:
       TZ: ${APP_SERVER_TIMEZONE}
-    expose:
-      - ${APP_REDIS_PORT}
+    ports:
+      - ${APP_REDIS_PORT}:6379
+    networks:
+      - bike-networks
+
+networks:
+  bike-networks:
+    driver: bridge

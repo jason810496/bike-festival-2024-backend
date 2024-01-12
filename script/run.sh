@@ -79,7 +79,7 @@ case "$action" in
         if [ "$action" = "migrate" ]; then
             go run ./cmd/migrate/migrate.go
         elif [ "$action" = "run" ]; then
-            go run ./cmd/app/app.go
+            go run ./cmd/main.go
         elif [ "$action" = "serve" ]; then
             air
         elif [ "$action" = "test" ]; then
