@@ -22,10 +22,23 @@ type UserServiceImpl struct {
 	cache *redis.Client
 }
 
+func (us *UserServiceImpl) ListUsers(ctx context.Context) ([]*model.User, error) {
+	var users []*model.User
+	err := us.db.WithContext(ctx).Find(&users).Error
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (us *UserServiceImpl) CreateFakeUser(ctx context.Context, user *model.User) error {
+	return us.db.WithContext(ctx).Create(user).Error
+}
+
 // GetUserByID implements model.UserService.
 func (us *UserServiceImpl) GetUserByID(ctx context.Context, id string) (*model.User, error) {
 	user := &model.User{}
-	err := us.db.WithContext(ctx).Where("id = ?", id).First(user).Error
+	err := us.db.WithContext(ctx).Where(&model.User{ID: id}).First(user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +58,8 @@ func (*UserServiceImpl) VerifyRefreshToken(_ context.Context, refreshToken strin
 }
 
 // Logout implements model.UserService.
-func (us *UserServiceImpl) Logout(ctx context.Context, token *string, secrect string) error {
-	claims, err := tokensvc.ExtractCustomClaimsFromToken(token, secrect)
+func (us *UserServiceImpl) Logout(ctx context.Context, token *string, secret string) error {
+	claims, err := tokensvc.ExtractCustomClaimsFromToken(token, secret)
 	if err != nil {
 		return err
 	}
