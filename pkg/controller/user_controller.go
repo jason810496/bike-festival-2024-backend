@@ -121,10 +121,16 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 
 func (ctrl *UserController) GetUsers(c *gin.Context) {
 	// page, limit := RetrievePagination(c)
-
-	c.JSON(http.StatusOK, model.Response{
+	users, err := ctrl.userSvc.ListUsers(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, model.UserListResponse{
 		Msg:  "get users",
-		Data: interface{}(nil),
+		Data: users,
 	})
 }
 
@@ -175,7 +181,7 @@ func (ctrl *UserController) FakeLogin(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, model.TokenResponse{
 		Data: loginResponse,
 	})
 

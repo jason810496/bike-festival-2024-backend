@@ -33,6 +33,16 @@ type CreateEventRequest struct {
 	EventDetail    *string `json:"event_detail"`
 }
 
+type EventResponse struct {
+	Msg  string `json:"msg"`
+	Data *Event `json:"data"`
+}
+
+type EventListResponse struct {
+	Msg  string   `json:"msg"`
+	Data []*Event `json:"data"`
+}
+
 type EventService interface {
 	FindAll(ctx context.Context, page, limit uint64) ([]Event, error)
 	FindByID(ctx context.Context, id string) (*Event, error)
