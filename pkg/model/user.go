@@ -27,10 +27,16 @@ type LoginResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
+type CreateFakeUserRequest struct {
+	Name string `json:"name,default=fake_user" binding:"required"`
+}
+
 type UserService interface {
 	GetUserByID(ctx context.Context, id string) (*User, error)
+	ListUsers(ctx context.Context) ([]*User, error)
+	CreateFakeUser(ctx context.Context, user *User) error
 	CreateAccessToken(ctx context.Context, user *User, secret string, expiry int64) (accessToken string, err error)
 	CreateRefreshToken(ctx context.Context, user *User, secret string, expiry int64) (refreshToken string, err error)
 	VerifyRefreshToken(ctx context.Context, refreshToken string, secret string) (user *User, err error)
-	Logout(ctx context.Context, token *string, secrect string) error
+	Logout(ctx context.Context, token *string, secret string) error
 }
