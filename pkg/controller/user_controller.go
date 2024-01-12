@@ -23,6 +23,17 @@ func NewUserController(userSvc model.UserService, env *bootstrap.Env) *UserContr
 	}
 }
 
+// Profile godoc
+// @Summary Profile
+// @Description Fetches the profile of a user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param user_id path string true "User ID"
+// @Success 200 {object} model.UserResponse "Profile successfully retrieved"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /user/profile [get]
 func (ctrl *UserController) Profile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	profile, err := ctrl.userSvc.GetUserByID(c, userID.(string))
@@ -32,11 +43,21 @@ func (ctrl *UserController) Profile(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, model.UserResponse{
 		Data: profile,
 	})
 }
 
+// GetUserByID godoc
+// @Summary Get user by ID
+// @Description Retrieves a user's information by their ID
+// @Tags User
+// @Accept json
+// @Produce json
+// @Param user_id path string true "User ID"
+// @Success 200 {object} model.UserResponse "User successfully retrieved"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /user/{user_id} [get]
 func (ctrl *UserController) GetUserByID(c *gin.Context) {
 	userID := c.Param("user_id")
 	user, err := ctrl.userSvc.GetUserByID(c, userID)
@@ -46,7 +67,7 @@ func (ctrl *UserController) GetUserByID(c *gin.Context) {
 		})
 		return
 	}
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, model.UserResponse{
 		Msg:  "get user by id",
 		Data: user,
 	})
@@ -88,12 +109,12 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	loginResponse := model.LoginResponse{
+	loginResponse := &model.Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
 
-	c.JSON(http.StatusOK, model.Response{
+	c.JSON(http.StatusOK, model.TokenResponse{
 		Data: loginResponse,
 	})
 }
@@ -149,7 +170,7 @@ func (ctrl *UserController) FakeLogin(c *gin.Context) {
 		return
 	}
 
-	loginResponse := model.LoginResponse{
+	loginResponse := model.Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}

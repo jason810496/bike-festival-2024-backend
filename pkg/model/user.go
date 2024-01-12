@@ -22,13 +22,18 @@ func (u *User) BeforeCreate(*gorm.DB) error {
 	return nil
 }
 
-type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
-
 type CreateFakeUserRequest struct {
 	Name string `json:"name,default=fake_user" binding:"required"`
+}
+
+type UserResponse struct {
+	Msg  string `json:"msg"`
+	Data *User  `json:"data"`
+}
+
+type UserListResponse struct {
+	Msg  string  `json:"msg"`
+	Data []*User `json:"data"`
 }
 
 type UserService interface {
