@@ -63,6 +63,9 @@ func main() {
 	router.RegisterRoutes(app, services)
 
 	// setup swagger
+	// @securityDefinitions.apikey ApiKeyAuth
+	// @in header
+	// @name Authorization
 	SetUpSwagger(docs.SwaggerInfo, app)
 	app.Engine.GET("/swagger/*any",
 		ginSwagger.WrapHandler(
