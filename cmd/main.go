@@ -3,6 +3,7 @@ package main
 import (
 	"bikefest/docs"
 	"bikefest/pkg/bootstrap"
+	"bikefest/pkg/model"
 	"bikefest/pkg/router"
 	"bikefest/pkg/service"
 	"fmt"
@@ -49,6 +50,16 @@ func ReverseProxy() gin.HandlerFunc {
 func main() {
 	// init config
 	app := bootstrap.App()
+
+	// TODO: needs to consider whether migrate the db schema everytime the service boot
+	err := app.Conn.AutoMigrate(
+		&model.User{},
+		&model.Event{},
+		&model.PsychoTest{},
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	// init services
 	userService := service.NewUserService(app.Conn, app.Cache)
