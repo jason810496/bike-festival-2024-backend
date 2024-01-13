@@ -3,6 +3,7 @@ package bootstrap
 import (
 	"context"
 	"fmt"
+	social "github.com/kkdai/line-login-sdk-go"
 	"log"
 	"net/http"
 	"os"
@@ -19,10 +20,11 @@ import (
 type AppOpts func(app *Application)
 
 type Application struct {
-	Env    *Env
-	Conn   *gorm.DB
-	Cache  *redis.Client
-	Engine *gin.Engine
+	Env              *Env
+	Conn             *gorm.DB
+	Cache            *redis.Client
+	Engine           *gin.Engine
+	LineSocialClient *social.Client
 }
 
 func App(opts ...AppOpts) *Application {
@@ -30,6 +32,7 @@ func App(opts ...AppOpts) *Application {
 	db := NewDB(env)
 	cache := NewCache(env)
 	engine := gin.Default()
+	lineSocialClient := NewLineSocialClient(env)
 
 	// Set timezone
 	tz, err := time.LoadLocation(env.Server.TimeZone)
@@ -39,10 +42,11 @@ func App(opts ...AppOpts) *Application {
 	time.Local = tz
 
 	app := &Application{
-		Env:    env,
-		Conn:   db,
-		Cache:  cache,
-		Engine: engine,
+		Env:              env,
+		Conn:             db,
+		Cache:            cache,
+		Engine:           engine,
+		LineSocialClient: lineSocialClient,
 	}
 
 	for _, opt := range opts {
