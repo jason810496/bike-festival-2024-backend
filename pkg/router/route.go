@@ -28,4 +28,8 @@ func RegisterRoutes(app *bootstrap.Application, services *Services) {
 	// Register PsychoTest Routes
 	psychoTestController := controller.NewPsychoTestController(app.Conn)
 	RegisterPsychoTestRouter(app, psychoTestController)
+
+	// Register OAuth Routes
+	oauthController := controller.NewOAuthController(app.LineSocialClient, app.Env, services.UserService)
+	RegisterOAuthRouter(app, oauthController)
 }
