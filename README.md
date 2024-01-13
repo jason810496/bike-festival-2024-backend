@@ -8,13 +8,16 @@
 
 ### Official Document
 
+- [line messaging github](https://github.com/line/line-bot-sdk-go)
 - [integrate line login](https://developers.line.biz/en/docs/line-login/integrate-line-login/)
 
 ### Tutorial
 
-#### 1. [[Golang][LINE][教學] 導入 LINE Login 到你的商業網站之中，並且加入官方帳號為好友](https://www.evanlin.com/line-login/)
+#### 1. Line Login Integration Tutorial
 
-- [github](https://github.com/line/line-bot-sdk-go)
+- [[Golang][LINE][教學] 將你的 chatbot 透過 account link 連接你的服務](https://www.evanlin.com/line-accountlink/)
+- [[Golang][LINE][教學] 導入 LINE Login 到你的商業網站之中，並且加入官方帳號為好友](https://www.evanlin.com/line-login/)
+- [github](https://github.com/kkdai/line-login-go)
 
 ## Branch/Commit Type
 
