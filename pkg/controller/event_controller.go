@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bikefest/pkg/model"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -101,7 +102,6 @@ func (ctrl *EventController) GetUserEvent(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param user_id header string true "User ID"
 // @Param request body model.CreateEventRequest true "Event Subscription Request"
 // @Success 200 {object} model.EventResponse "Successfully subscribed to the event"
 // @Failure 400 {object} model.Response "Bad Request - Invalid input"
@@ -139,7 +139,7 @@ func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 // UpdateEvent godoc
 // @Summary Update an event
 // @Description Updates an event by ID with new details
-// @Tags Events
+// @Tags Event
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
@@ -151,6 +151,7 @@ func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 // @Router /event/{id} [put]
 func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	id := c.Param("id")
+	userID := c.GetString("user_id")
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
 		c.AbortWithStatusJSON(400, model.Response{
@@ -166,7 +167,7 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 		return
 	}
 	updatedEvent := &model.Event{
-		UserID:         request.UserID,
+		UserID:         userID,
 		EventID:        request.EventID,
 		EventTimeStart: request.EventTimeStart,
 		EventTimeEnd:   request.EventTimeEnd,
@@ -196,7 +197,7 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 // @Param event_id path string true "Event ID"
 // @Success 200 {object} model.Response "Event successfully deleted"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /events/{event_id} [delete]
+// @Router /event/{event_id} [delete]
 func (ctrl *EventController) DeleteEvent(c *gin.Context) {
 	userID := c.GetString("user_id")
 	eventID := c.Param("event_id")

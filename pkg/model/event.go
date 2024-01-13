@@ -2,20 +2,21 @@ package model
 
 import (
 	"context"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Event struct {
 	gorm.Model
-	ID     string `gorm:"type:varchar(36);primary_key"`
-	UserID string `gorm:"type:varchar(36);index;not null"`
+	ID     string `gorm:"type:varchar(36);primary_key" json:"id"`
+	UserID string `gorm:"type:varchar(36);index;not null" json:"user_id"`
 	// the event id is defne at the frontend
-	EventID        string  `gorm:"type:varchar(36);index;not null"`
-	EventTimeStart *string `gorm:"type:varchar(255)"`
-	EventTimeEnd   *string `gorm:"type:varchar(255)"`
+	EventID        string  `gorm:"type:varchar(36);index;not null" json:"event_id" binding:"required"`
+	EventTimeStart *string `gorm:"type:varchar(255)" json:"event_time_start"`
+	EventTimeEnd   *string `gorm:"type:varchar(255)" json:"event_time_end"`
 	// the `EventDetail` field store the event detail in json format, this would be parsed when send to line message API
-	EventDetail *string `gorm:"type:varchar(1024)"`
+	EventDetail *string `gorm:"type:varchar(1024)" json:"event_detail"`
 }
 
 func (e *Event) BeforeCreate(*gorm.DB) error {
@@ -26,7 +27,6 @@ func (e *Event) BeforeCreate(*gorm.DB) error {
 }
 
 type CreateEventRequest struct {
-	UserID         string  `json:"user_id" binding:"required"`
 	EventID        string  `json:"event_id" binding:"required"`
 	EventTimeStart *string `json:"event_time_start"`
 	EventTimeEnd   *string `json:"event_time_end"`
