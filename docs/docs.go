@@ -76,13 +76,6 @@ const docTemplate = `{
                 "summary": "Subscribe to an event",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "description": "Event Subscription Request",
                         "name": "request",
                         "in": "body",
@@ -148,6 +141,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/event/{event_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes a specific event by its ID for a given user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Delete event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event successfully deleted",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/event/{id}": {
             "get": {
                 "description": "Retrieves an event using its unique ID",
@@ -199,7 +242,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Events"
+                    "Event"
                 ],
                 "summary": "Update an event",
                 "parameters": [
@@ -229,56 +272,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/events/{event_id}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Deletes a specific event by its ID for a given user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Delete event",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Event ID",
-                        "name": "event_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event successfully deleted",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
@@ -592,8 +585,7 @@ const docTemplate = `{
         "bikefest_pkg_model.CreateEventRequest": {
             "type": "object",
             "required": [
-                "event_id",
-                "user_id"
+                "event_id"
             ],
             "properties": {
                 "event_detail": {
@@ -606,9 +598,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_time_start": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 }
             }
@@ -626,6 +615,9 @@ const docTemplate = `{
         },
         "bikefest_pkg_model.Event": {
             "type": "object",
+            "required": [
+                "event_id"
+            ],
             "properties": {
                 "createdAt": {
                     "type": "string"
@@ -633,18 +625,18 @@ const docTemplate = `{
                 "deletedAt": {
                     "$ref": "#/definitions/gorm.DeletedAt"
                 },
-                "eventDetail": {
+                "event_detail": {
                     "description": "the ` + "`" + `EventDetail` + "`" + ` field store the event detail in json format, this would be parsed when send to line message API",
                     "type": "string"
                 },
-                "eventID": {
+                "event_id": {
                     "description": "the event id is defne at the frontend",
                     "type": "string"
                 },
-                "eventTimeEnd": {
+                "event_time_end": {
                     "type": "string"
                 },
-                "eventTimeStart": {
+                "event_time_start": {
                     "type": "string"
                 },
                 "id": {
@@ -653,7 +645,7 @@ const docTemplate = `{
                 "updatedAt": {
                     "type": "string"
                 },
-                "userID": {
+                "user_id": {
                     "type": "string"
                 }
             }
@@ -788,6 +780,13 @@ const docTemplate = `{
                     "type": "boolean"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
