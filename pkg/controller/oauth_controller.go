@@ -27,8 +27,13 @@ type OAuthController struct {
 
 // http://localhost:8000/line-login/auth
 func (ctrl *OAuthController) LineLogin(c *gin.Context) {
-	//TODO: place `serverURL` into env
-	serverURL := "http://localhost:8000"
+	originalUrl := c.Request.Referer() + c.Query("redirect_path")
+
+	// remove the duplicate slash
+	originalUrl = strings.ReplaceAll(originalUrl, "//", "/")
+
+	log.Println("originalUrl:", originalUrl)
+	serverURL := ctrl.env.Line.ServerUrl
 	scope := "profile openid" //profile | openid | email
 	state := social.GenerateNonce()
 	nonce := social.GenerateNonce()
@@ -38,9 +43,7 @@ func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 }
 
 func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
-	//TODO: place `serverURL` and `frontendURL` into env
-	serverURL := "http://localhost:8000"
-	frontendURL := "http://localhost:3000"
+	serverURL := ctrl.env.Line.ServerUrl
 	code := c.Query("code")
 	_ = c.Query("state")
 	token, err := ctrl.lineSocialClient.GetAccessToken(fmt.Sprintf("%s/line-login/callback", serverURL), code).Do()
