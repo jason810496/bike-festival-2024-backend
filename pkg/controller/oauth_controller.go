@@ -35,17 +35,35 @@ func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 	log.Println("originalUrl:", originalUrl)
 	serverURL := ctrl.env.Line.ServerUrl
 	scope := "profile openid" //profile | openid | email
-	state := social.GenerateNonce()
+	// TODO: add some random string to state
+	state := originalUrl + "$" + social.GenerateNonce()
+	if len(state) == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
+			Msg: "login with the wrong way, please try again in official website",
+		})
+		return
+	}
 	nonce := social.GenerateNonce()
 	redirectURL := fmt.Sprintf("%s/line-login/callback", serverURL)
 	targetURL := ctrl.lineSocialClient.GetWebLoinURL(redirectURL, state, scope, social.AuthRequestOptions{Nonce: nonce, Prompt: "consent"})
-	c.Redirect(http.StatusMovedPermanently, targetURL)
+	c.SetCookie("state", state, 3600, "/", "", false, true)
+	c.Redirect(http.StatusFound, targetURL)
 }
 
 func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 	serverURL := ctrl.env.Line.ServerUrl
 	code := c.Query("code")
-	_ = c.Query("state")
+	state := c.Query("state")
+	stateInCookie, err := c.Cookie("state")
+	if err != nil || stateInCookie != state {
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
+			Msg: "state cookie is invalid",
+		})
+		return
+	}
+	log.Println("code:", code, " stateInCookie:", stateInCookie)
+	// TODO: remove the random string from state
+	frontendURL := strings.Split(stateInCookie, "$")[0]
 	token, err := ctrl.lineSocialClient.GetAccessToken(fmt.Sprintf("%s/line-login/callback", serverURL), code).Do()
 	if err != nil {
 		log.Println("RequestLoginToken err:", err)
@@ -116,5 +134,5 @@ func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 	c.SetCookie("access_token", strconv.FormatInt(ctrl.env.JWT.AccessTokenExpiry, 10), 3600, "/", "", false, true)
 	c.SetCookie("refresh_token", strconv.FormatInt(ctrl.env.JWT.AccessTokenExpiry, 10), 3600, "/", "", false, true)
 	// redirect to frontend
-	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("%s/oauth?access_token=%s&refresh_token=%s", frontendURL, accessToken, refreshToken))
+	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("%s?access_token=%s&refresh_token=%s&redirect_url=%s", frontendURL, accessToken, refreshToken, frontendURL))
 }
