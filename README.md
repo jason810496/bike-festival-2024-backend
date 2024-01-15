@@ -2,7 +2,7 @@
 
 ## API Document
 
-### [SwaggerHub](https://app.swaggerhub.com/apis-docs/peterxcli/ncku-bikefest-2024/1.0.0#/)
+### [Swagger API Document](https://gdsc-ncku.github.io/bike-festival-2024-backend/)
 
 ## Line Login
 
