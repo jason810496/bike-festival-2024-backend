@@ -307,6 +307,61 @@ paths:
       summary: Get User Events
       tags:
       - Event
+  /line-login/auth:
+    get:
+      consumes:
+      - application/json
+      description: Redirects the user to LINE's OAuth service for authentication.
+      parameters:
+      - description: Redirect path after login
+        in: query
+        name: redirect_path
+        type: string
+      produces:
+      - application/json
+      responses:
+        "301":
+          description: Redirect to the target URL
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Initiate LINE OAuth login
+      tags:
+      - OAuth
+  /line-login/callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles the callback from LINE's OAuth service and redirects the
+        user to the frontend with the tokens in the query and cookies.
+      parameters:
+      - description: Authorization code
+        in: query
+        name: code
+        required: true
+        type: string
+      - description: State
+        in: query
+        name: state
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "301":
+          description: Redirect to the frontend
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Handle LINE OAuth callback
+      tags:
+      - OAuth
   /user/{user_id}:
     get:
       consumes:

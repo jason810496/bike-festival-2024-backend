@@ -285,6 +285,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/line-login/auth": {
+            "get": {
+                "description": "Redirects the user to LINE's OAuth service for authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Initiate LINE OAuth login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Redirect path after login",
+                        "name": "redirect_path",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "301": {
+                        "description": "Redirect to the target URL",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/line-login/callback": {
+            "get": {
+                "description": "Handles the callback from LINE's OAuth service and redirects the user to the frontend with the tokens in the query and cookies.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Handle LINE OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "State",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "301": {
+                        "description": "Redirect to the frontend",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/user/login/{user_id}": {
             "get": {
                 "description": "Simulates a login process for a user by generating fake access and refresh tokens",
