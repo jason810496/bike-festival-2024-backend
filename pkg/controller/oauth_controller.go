@@ -2,6 +2,7 @@ package controller
 
 import (
 	"bikefest/pkg/bootstrap"
+	"bikefest/pkg/line_utils"
 	"bikefest/pkg/model"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -54,7 +55,7 @@ func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 	}
 	nonce := social.GenerateNonce()
 	redirectURL := fmt.Sprintf("%s/line-login/callback", serverURL)
-	targetURL := ctrl.lineSocialClient.GetWebLoinURL(redirectURL, state, scope, social.AuthRequestOptions{Nonce: nonce, Prompt: "consent"})
+	targetURL := ctrl.lineSocialClient.GetWebLoinURL(redirectURL, state, scope, social.AuthRequestOptions{Nonce: nonce, Prompt: "consent", BotPrompt: "aggressive"})
 	c.SetCookie("state", state, 3600, "/", "", false, true)
 	c.Redirect(http.StatusFound, targetURL)
 }
@@ -90,33 +91,26 @@ func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 	}
 	log.Println("access_token:", token.AccessToken, " refresh_token:", token.RefreshToken)
 
+	// check friendship with official account
+	friendFlag, err := line_utils.GetFriendshipStatus(token.AccessToken)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
+			Msg: err.Error(),
+		})
+	}
+	if friendFlag != true {
+		c.AbortWithStatusJSON(http.StatusForbidden, model.Response{
+			Msg: "You are not a friend of the official account",
+		})
+		return
+	}
 	var payload *social.Payload
-	//if len(token.IDToken) == 0 {
-	//	// User don't request openID, use access token to get user profile
-	//	log.Println(" token:", token, " AccessToken:", token.AccessToken)
-	//	res, err := ctrl.lineSocialClient.GetUserProfile(token.AccessToken).Do()
-	//	if err != nil {
-	//		log.Println("GetUserProfile err:", err)
-	//		return
-	//	}
-	//	payload = &social.Payload{
-	//		Name:    res.DisplayName,
-	//		Picture: res.PictureURL,
-	//	}
-	//} else {
-	//Decode token.IDToken to payload
 	payload, err = token.DecodePayload(ctrl.env.Line.ChannelID)
 	if err != nil {
 		log.Println("DecodeIDToken err:", err)
 		return
 	}
-	//}
 	log.Printf("payload: %#v", payload)
-
-	//c.JSON(http.StatusOK, gin.H{
-	//	"status": "Success",
-	//	"data":   payload,
-	//})
 
 	user := &model.User{
 		ID:   payload.Sub,
