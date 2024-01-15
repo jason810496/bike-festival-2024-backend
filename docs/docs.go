@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/event": {
+        "/events": {
             "get": {
                 "description": "Retrieves a list of all events with pagination",
                 "consumes": [
@@ -107,7 +107,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/event/user": {
+        "/events/users": {
             "get": {
                 "security": [
                     {
@@ -141,7 +141,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/event/{event_id}": {
+        "/events/{event_id}": {
             "delete": {
                 "security": [
                     {
@@ -191,7 +191,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/event/{id}": {
+        "/events/{id}": {
             "get": {
                 "description": "Retrieves an event using its unique ID",
                 "consumes": [
@@ -367,7 +367,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/login/{user_id}": {
+        "/users/login/{user_id}": {
             "get": {
                 "description": "Simulates a login process for a user by generating fake access and refresh tokens",
                 "consumes": [
@@ -405,7 +405,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/logout": {
+        "/users/logout": {
             "post": {
                 "security": [
                     {
@@ -454,7 +454,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/profile": {
+        "/users/profile": {
             "get": {
                 "security": [
                     {
@@ -497,7 +497,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/refresh_token": {
+        "/users/refresh_token": {
             "post": {
                 "description": "Refreshes the access and refresh tokens for a user",
                 "consumes": [
@@ -549,7 +549,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/register": {
+        "/users/register": {
             "post": {
                 "description": "Register a fake user for testing purposes",
                 "consumes": [
@@ -595,7 +595,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{user_id}": {
+        "/users/{user_id}": {
             "get": {
                 "description": "Retrieves a user's information by their ID",
                 "consumes": [

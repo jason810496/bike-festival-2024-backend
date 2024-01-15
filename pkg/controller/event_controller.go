@@ -24,7 +24,7 @@ func NewEventController(eventService model.EventService) *EventController {
 // @Param limit query int false "Number of items per page for pagination"
 // @Success 200 {object} model.EventListResponse "List of events"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /event [get]
+// @Router /events [get]
 func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 	page, limit := RetrievePagination(c)
 	events, err := ctrl.eventService.FindAll(c, page, limit)
@@ -48,7 +48,7 @@ func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 // @Param id path string true "Event ID"
 // @Success 200 {object} model.EventResponse "Event successfully retrieved"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /event/{id} [get]
+// @Router /events/{id} [get]
 func (ctrl *EventController) GetEventByID(c *gin.Context) {
 	id := c.Param("id")
 	userID := c.GetString("user_id")
@@ -80,7 +80,7 @@ func (ctrl *EventController) GetEventByID(c *gin.Context) {
 // @Security ApiKeyAuth // include this line if the endpoint is protected by an API key or other security mechanism
 // @Success 200 {object} model.EventListResponse "List of events associated with the user"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /event/user [get] // adjust the path and HTTP method according to your routing
+// @Router /events/users [get] // adjust the path and HTTP method according to your routing
 func (ctrl *EventController) GetUserEvent(c *gin.Context) {
 	userID := c.GetString("user_id")
 	events, err := ctrl.eventService.FindByUserID(c, userID)
@@ -106,7 +106,7 @@ func (ctrl *EventController) GetUserEvent(c *gin.Context) {
 // @Success 200 {object} model.EventResponse "Successfully subscribed to the event"
 // @Failure 400 {object} model.Response "Bad Request - Invalid input"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /event [post]
+// @Router /events [post]
 func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 	userID := c.GetString("user_id")
 	var request model.CreateEventRequest
@@ -148,7 +148,7 @@ func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 // @Success 200 {object} model.EventResponse "Event successfully updated"
 // @Failure 400 {object} model.Response "Bad Request - Invalid input"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /event/{id} [put]
+// @Router /events/{id} [put]
 func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	id := c.Param("id")
 	userID := c.GetString("user_id")
@@ -197,7 +197,7 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 // @Param event_id path string true "Event ID"
 // @Success 200 {object} model.Response "Event successfully deleted"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /event/{event_id} [delete]
+// @Router /events/{event_id} [delete]
 func (ctrl *EventController) DeleteEvent(c *gin.Context) {
 	userID := c.GetString("user_id")
 	eventID := c.Param("event_id")

@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterUserRoutes(app *bootstrap.Application, controller *controller.UserController) {
-	r := app.Engine.Group("/user")
+	r := app.Engine.Group("/users")
 	authMiddleware := middleware.AuthMiddleware(app.Env.JWT.AccessTokenSecret, app.Cache)
 
 	r.GET("/profile", authMiddleware, controller.Profile)

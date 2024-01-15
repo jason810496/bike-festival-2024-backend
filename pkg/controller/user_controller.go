@@ -33,7 +33,7 @@ func NewUserController(userSvc model.UserService, env *bootstrap.Env) *UserContr
 // @Param user_id path string true "User ID"
 // @Success 200 {object} model.UserResponse "Profile successfully retrieved"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /user/profile [get]
+// @Router /users/profile [get]
 func (ctrl *UserController) Profile(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	profile, err := ctrl.userSvc.GetUserByID(c, userID.(string))
@@ -57,7 +57,7 @@ func (ctrl *UserController) Profile(c *gin.Context) {
 // @Param user_id path string true "User ID"
 // @Success 200 {object} model.UserResponse "User successfully retrieved"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /user/{user_id} [get]
+// @Router /users/{user_id} [get]
 func (ctrl *UserController) GetUserByID(c *gin.Context) {
 	userID := c.Param("user_id")
 	user, err := ctrl.userSvc.GetUserByID(c, userID)
@@ -84,7 +84,7 @@ func (ctrl *UserController) GetUserByID(c *gin.Context) {
 // @Failure 400 {object} model.Response "Bad Request - Invalid request format"
 // @Failure 401 {object} model.Response "Unauthorized - Invalid or expired refresh token"
 // @Failure 500 {object} model.Response "Internal Server Error - Error generating tokens"
-// @Router /user/refresh_token [post]
+// @Router /users/refresh_token [post]
 func (ctrl *UserController) RefreshToken(c *gin.Context) {
 	var request model.RefreshTokenRequest
 
@@ -164,7 +164,7 @@ func (ctrl *UserController) GetUsers(c *gin.Context) {
 // @Success 200 {object} model.Response "Logout successful"
 // @Failure 401 {object} model.Response "Unauthorized: Invalid token format"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /user/logout [post]
+// @Router /users/logout [post]
 func (ctrl *UserController) Logout(c *gin.Context) {
 	// TODO: need to discuss where to read the token from (header or body or cookie)
 	authHeader := c.GetHeader("Authorization")
@@ -197,7 +197,7 @@ func (ctrl *UserController) Logout(c *gin.Context) {
 // @Param user_id path string true "User ID"
 // @Success 200 {object} model.TokenResponse "Login successful, tokens generated"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /user/login/{user_id} [get]
+// @Router /users/login/{user_id} [get]
 func (ctrl *UserController) FakeLogin(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -241,7 +241,7 @@ func (ctrl *UserController) FakeLogin(c *gin.Context) {
 // @Success 200 {object} model.Response "Fake register successful"
 // @Failure 400 {object} model.Response "Bad Request - Invalid input data"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /user/register [post]
+// @Router /users/register [post]
 func (ctrl *UserController) FakeRegister(c *gin.Context) {
 	var request model.CreateFakeUserRequest
 
