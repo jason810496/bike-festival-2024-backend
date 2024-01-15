@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func NewOAuthController(lineSocialClient *social.Client, env *bootstrap.Env, userSvc model.UserService) *OAuthController {
@@ -25,7 +26,16 @@ type OAuthController struct {
 	env              *bootstrap.Env
 }
 
-// http://localhost:8000/line-login/auth
+// LineLogin initiates a login process using LINE's OAuth service.
+// @Summary Initiate LINE OAuth login
+// @Description Redirects the user to LINE's OAuth service for authentication.
+// @Tags OAuth
+// @Accept  json
+// @Produce  json
+// @Param redirect_path query string false "Redirect path after login"
+// @Success 301 {string} string "Redirect to the target URL"
+// @Failure 400 {string} string "Bad Request"
+// @Router /line-login/auth [get]
 func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 	originalUrl := c.Request.Referer() + c.Query("redirect_path")
 
@@ -50,6 +60,17 @@ func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 	c.Redirect(http.StatusFound, targetURL)
 }
 
+// LineLoginCallback handles the callback from LINE's OAuth service.
+// @Summary Handle LINE OAuth callback
+// @Description Handles the callback from LINE's OAuth service and redirects the user to the frontend with the tokens in the query and cookies.
+// @Tags OAuth
+// @Accept  json
+// @Produce  json
+// @Param code query string true "Authorization code"
+// @Param state query string true "State"
+// @Success 301 {string} string "Redirect to the frontend"
+// @Failure 400 {string} string "Bad Request"
+// @Router /line-login/callback [get]
 func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 	serverURL := ctrl.env.Line.ServerUrl
 	code := c.Query("code")
