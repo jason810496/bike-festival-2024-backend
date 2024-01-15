@@ -103,8 +103,6 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	// TODO: DO we need to check if the user is still active or any other things?
-
 	accessToken, err := ctrl.userSvc.CreateAccessToken(c, identity, ctrl.env.JWT.AccessTokenSecret, ctrl.env.JWT.AccessTokenExpiry)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{

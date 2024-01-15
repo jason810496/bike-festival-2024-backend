@@ -45,7 +45,6 @@ func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 	log.Println("originalUrl:", originalUrl)
 	serverURL := ctrl.env.Line.ServerUrl
 	scope := "profile openid" //profile | openid | email
-	// TODO: add some random string to state
 	state := originalUrl + "$" + social.GenerateNonce()
 	if len(state) == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
@@ -83,7 +82,6 @@ func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 		return
 	}
 	log.Println("code:", code, " stateInCookie:", stateInCookie)
-	// TODO: remove the random string from state
 	frontendURL := strings.Split(stateInCookie, "$")[0]
 	token, err := ctrl.lineSocialClient.GetAccessToken(fmt.Sprintf("%s/line-login/callback", serverURL), code).Do()
 	if err != nil {
