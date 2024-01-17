@@ -96,7 +96,7 @@
                 }
             }
         },
-        "/events/users": {
+        "/events/user": {
             "get": {
                 "security": [
                     {

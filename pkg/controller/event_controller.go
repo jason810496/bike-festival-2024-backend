@@ -80,7 +80,7 @@ func (ctrl *EventController) GetEventByID(c *gin.Context) {
 // @Security ApiKeyAuth // include this line if the endpoint is protected by an API key or other security mechanism
 // @Success 200 {object} model.EventListResponse "List of events associated with the user"
 // @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /events/users [get] // adjust the path and HTTP method according to your routing
+// @Router /events/user [get] // adjust the path and HTTP method according to your routing
 func (ctrl *EventController) GetUserEvent(c *gin.Context) {
 	userID := c.GetString("user_id")
 	events, err := ctrl.eventService.FindByUserID(c, userID)

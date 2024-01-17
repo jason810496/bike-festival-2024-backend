@@ -107,7 +107,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/events/users": {
+        "/events/user": {
             "get": {
                 "security": [
                     {

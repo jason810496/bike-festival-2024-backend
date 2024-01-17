@@ -286,7 +286,7 @@ paths:
       summary: Update an event
       tags:
       - Event
-  /events/users:
+  /events/user:
     get:
       consumes:
       - application/json
