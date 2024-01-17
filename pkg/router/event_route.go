@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterEventRouter(app *bootstrap.Application, controller *controller.EventController) {
-	r := app.Engine.Group("/event")
+	r := app.Engine.Group("/events")
 	authMiddleware := middleware.AuthMiddleware(app.Env.JWT.AccessTokenSecret, app.Cache)
 
 	r.GET("", controller.GetAllEvent)

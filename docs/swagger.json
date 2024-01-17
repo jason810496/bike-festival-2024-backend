@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/event": {
+        "/events": {
             "get": {
                 "description": "Retrieves a list of all events with pagination",
                 "consumes": [
@@ -96,7 +96,7 @@
                 }
             }
         },
-        "/event/user": {
+        "/events/user": {
             "get": {
                 "security": [
                     {
@@ -130,7 +130,7 @@
                 }
             }
         },
-        "/event/{event_id}": {
+        "/events/{event_id}": {
             "delete": {
                 "security": [
                     {
@@ -180,7 +180,7 @@
                 }
             }
         },
-        "/event/{id}": {
+        "/events/{id}": {
             "get": {
                 "description": "Retrieves an event using its unique ID",
                 "consumes": [
@@ -356,7 +356,7 @@
                 }
             }
         },
-        "/user/login/{user_id}": {
+        "/users/login/{user_id}": {
             "get": {
                 "description": "Simulates a login process for a user by generating fake access and refresh tokens",
                 "consumes": [
@@ -394,7 +394,7 @@
                 }
             }
         },
-        "/user/logout": {
+        "/users/logout": {
             "post": {
                 "security": [
                     {
@@ -443,7 +443,7 @@
                 }
             }
         },
-        "/user/profile": {
+        "/users/profile": {
             "get": {
                 "security": [
                     {
@@ -486,7 +486,7 @@
                 }
             }
         },
-        "/user/refresh_token": {
+        "/users/refresh_token": {
             "post": {
                 "description": "Refreshes the access and refresh tokens for a user",
                 "consumes": [
@@ -538,7 +538,7 @@
                 }
             }
         },
-        "/user/register": {
+        "/users/register": {
             "post": {
                 "description": "Register a fake user for testing purposes",
                 "consumes": [
@@ -584,7 +584,7 @@
                 }
             }
         },
-        "/user/{user_id}": {
+        "/users/{user_id}": {
             "get": {
                 "description": "Retrieves a user's information by their ID",
                 "consumes": [

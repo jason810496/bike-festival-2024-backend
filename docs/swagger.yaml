@@ -134,7 +134,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /event:
+  /events:
     get:
       consumes:
       - application/json
@@ -193,7 +193,7 @@ paths:
       summary: Subscribe to an event
       tags:
       - Event
-  /event/{event_id}:
+  /events/{event_id}:
     delete:
       consumes:
       - application/json
@@ -225,7 +225,7 @@ paths:
       summary: Delete event
       tags:
       - Event
-  /event/{id}:
+  /events/{id}:
     get:
       consumes:
       - application/json
@@ -286,7 +286,7 @@ paths:
       summary: Update an event
       tags:
       - Event
-  /event/user:
+  /events/user:
     get:
       consumes:
       - application/json
@@ -362,7 +362,7 @@ paths:
       summary: Handle LINE OAuth callback
       tags:
       - OAuth
-  /user/{user_id}:
+  /users/{user_id}:
     get:
       consumes:
       - application/json
@@ -387,7 +387,7 @@ paths:
       summary: Get user by ID
       tags:
       - User
-  /user/login/{user_id}:
+  /users/login/{user_id}:
     get:
       consumes:
       - application/json
@@ -413,7 +413,7 @@ paths:
       summary: Fake Login
       tags:
       - User
-  /user/logout:
+  /users/logout:
     post:
       consumes:
       - application/json
@@ -444,7 +444,7 @@ paths:
       summary: User logout
       tags:
       - User
-  /user/profile:
+  /users/profile:
     get:
       consumes:
       - application/json
@@ -471,7 +471,7 @@ paths:
       summary: Profile
       tags:
       - User
-  /user/refresh_token:
+  /users/refresh_token:
     post:
       consumes:
       - application/json
@@ -505,7 +505,7 @@ paths:
       summary: Refresh User Token
       tags:
       - Authentication
-  /user/register:
+  /users/register:
     post:
       consumes:
       - application/json
