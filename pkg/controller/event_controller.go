@@ -2,16 +2,21 @@ package controller
 
 import (
 	"bikefest/pkg/model"
+	"bikefest/pkg/service"
 
 	"github.com/gin-gonic/gin"
 )
 
 type EventController struct {
 	eventService model.EventService
+	asynqService service.AsynqServiceImpl
 }
 
-func NewEventController(eventService model.EventService) *EventController {
-	return &EventController{eventService: eventService}
+func NewEventController(eventService model.EventService, asynqService service.AsynqServiceImpl) *EventController {
+	return &EventController{
+		eventService: eventService,
+		asynqService: asynqService,
+	}
 }
 
 // GetAllEvent godoc
@@ -130,6 +135,8 @@ func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 		})
 		return
 	}
+
+	go ctrl.asynqService.EnqueueEvent(userID, request.EventID, *request.EventTimeStart)
 
 	c.JSON(200, model.EventResponse{
 		Data: newEvent,

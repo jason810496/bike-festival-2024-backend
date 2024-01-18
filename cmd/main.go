@@ -7,12 +7,13 @@ import (
 	"bikefest/pkg/router"
 	"bikefest/pkg/service"
 	"fmt"
+	"net/http"
+	"net/http/httputil"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/swag"
-	"net/http"
-	"net/http/httputil"
 )
 
 func SetUpSwagger(spec *swag.Spec, app *bootstrap.Application) {
@@ -64,10 +65,12 @@ func main() {
 	// init services
 	userService := service.NewUserService(app.Conn, app.Cache)
 	eventService := service.NewEventService(app.Conn, app.Cache)
+	asynqService := service.NewAsynqService(app.AsynqClient, app.Env)
 
 	services := &router.Services{
 		UserService:  userService,
 		EventService: eventService,
+		AsynqService: asynqService,
 	}
 
 	// init routes
