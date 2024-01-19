@@ -5,11 +5,13 @@ import (
 	"bikefest/pkg/controller"
 	"bikefest/pkg/middleware"
 	"bikefest/pkg/model"
+	"bikefest/pkg/service"
 )
 
 type Services struct {
 	UserService  model.UserService
 	EventService model.EventService
+	AsynqService service.AsynqServiceImpl
 }
 
 func RegisterRoutes(app *bootstrap.Application, services *Services) {
@@ -22,7 +24,7 @@ func RegisterRoutes(app *bootstrap.Application, services *Services) {
 	RegisterUserRoutes(app, userController)
 
 	// Register Event Routes
-	eventController := controller.NewEventController(services.EventService)
+	eventController := controller.NewEventController(services.EventService, services.AsynqService)
 	RegisterEventRouter(app, eventController)
 
 	// Register PsychoTest Routes

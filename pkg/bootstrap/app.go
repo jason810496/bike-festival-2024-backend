@@ -3,7 +3,6 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	social "github.com/kkdai/line-login-sdk-go"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,9 @@ import (
 	"syscall"
 	"time"
 	_ "time/tzdata"
+
+	"github.com/hibiken/asynq"
+	social "github.com/kkdai/line-login-sdk-go"
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
@@ -25,6 +27,7 @@ type Application struct {
 	Cache            *redis.Client
 	Engine           *gin.Engine
 	LineSocialClient *social.Client
+	AsynqClient      *asynq.Client
 }
 
 func App(opts ...AppOpts) *Application {
@@ -33,6 +36,7 @@ func App(opts ...AppOpts) *Application {
 	cache := NewCache(env)
 	engine := gin.Default()
 	lineSocialClient := NewLineSocialClient(env)
+	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cache.Options().Addr})
 
 	// Set timezone
 	tz, err := time.LoadLocation(env.Server.TimeZone)
@@ -47,6 +51,7 @@ func App(opts ...AppOpts) *Application {
 		Cache:            cache,
 		Engine:           engine,
 		LineSocialClient: lineSocialClient,
+		AsynqClient:      asynqClient,
 	}
 
 	for _, opt := range opts {
