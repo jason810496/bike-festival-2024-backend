@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"bikefest/pkg/model"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -22,5 +23,22 @@ func RetrievePagination(c *gin.Context) (page, limit uint64) {
 		limit = 10
 	}
 
+	return
+}
+
+// RetrieveIdentity retrieves the identity of the user from the context.
+// @param raise: if true, raise a http error if the identity does not exist
+func RetrieveIdentity(c *gin.Context, raise bool) (identity *model.Identity, exist bool) {
+	id, exist := c.Get("identity")
+	if !exist {
+		if raise {
+			// raise not login error
+			c.AbortWithStatusJSON(401, model.Response{
+				Msg: "not login",
+			})
+		}
+		return nil, false
+	}
+	identity = id.(*model.Identity)
 	return
 }

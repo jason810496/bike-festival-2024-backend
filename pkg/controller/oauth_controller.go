@@ -9,7 +9,6 @@ import (
 	social "github.com/kkdai/line-login-sdk-go"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -38,10 +37,7 @@ type OAuthController struct {
 // @Failure 400 {string} string "Bad Request"
 // @Router /line-login/auth [get]
 func (ctrl *OAuthController) LineLogin(c *gin.Context) {
-	originalUrl := c.Request.Referer() + c.Query("redirect_path")
-
-	// remove the duplicate slash
-	originalUrl = strings.ReplaceAll(originalUrl, "//", "/")
+	originalUrl := c.Request.Referer() + c.Query("redirect_path")[1:]
 
 	log.Println("originalUrl:", originalUrl)
 	serverURL := ctrl.env.Line.ServerUrl
@@ -144,8 +140,9 @@ func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 	}
 
 	// set to cookie
-	c.SetCookie("access_token", strconv.FormatInt(ctrl.env.JWT.AccessTokenExpiry, 10), 3600, "/", "", false, true)
-	c.SetCookie("refresh_token", strconv.FormatInt(ctrl.env.JWT.AccessTokenExpiry, 10), 3600, "/", "", false, true)
+	c.SetCookie("access_token", fmt.Sprintf("Bearer %s", accessToken), 3600, "/", "", false, true)
+	c.SetCookie("refresh_token", fmt.Sprintf("Bearer %s", refreshToken), 3600, "/", "", false, true)
 	// redirect to frontend
-	c.Redirect(http.StatusMovedPermanently, fmt.Sprintf("%s?access_token=%s&refresh_token=%s&redirect_url=%s", frontendURL, accessToken, refreshToken, frontendURL))
+	log.Println("redirect to frontend:", frontendURL)
+	c.Redirect(http.StatusFound, fmt.Sprintf("%s?access_token=%s&refresh_token=%s", frontendURL, accessToken, refreshToken))
 }

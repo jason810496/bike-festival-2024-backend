@@ -16,6 +16,10 @@ import (
 func AuthMiddleware(accessSecret string, cache *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			// get token from cookie
+			authHeader, _ = c.Cookie("access_token")
+		}
 		bearerToken := strings.Split(authHeader, " ")
 		if len(bearerToken) != 2 {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{

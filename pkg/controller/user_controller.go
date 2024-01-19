@@ -30,13 +30,13 @@ func NewUserController(userSvc model.UserService, env *bootstrap.Env) *UserContr
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param user_id path string true "User ID"
 // @Success 200 {object} model.UserResponse "Profile successfully retrieved"
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /users/profile [get]
 func (ctrl *UserController) Profile(c *gin.Context) {
-	userID, _ := c.Get("user_id")
-	profile, err := ctrl.userSvc.GetUserByID(c, userID.(string))
+	identity, _ := RetrieveIdentity(c, true)
+	userID := identity.UserID
+	profile, err := ctrl.userSvc.GetUserByID(c, userID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
@@ -183,6 +183,8 @@ func (ctrl *UserController) Logout(c *gin.Context) {
 		})
 		return
 	}
+	c.SetCookie("access_token", "", -1, "/", "", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, model.Response{
 		Msg: "logout success",
 	})

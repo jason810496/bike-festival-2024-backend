@@ -53,8 +53,9 @@ func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /events/{id} [get]
 func (ctrl *EventController) GetEventByID(c *gin.Context) {
+	identity, _ := RetrieveIdentity(c, true)
 	id := c.Param("id")
-	userID := c.GetString("user_id")
+	userID := identity.UserID
 	event, err := ctrl.eventService.FindByID(c, id)
 	if err != nil {
 		c.AbortWithStatusJSON(500, model.Response{
@@ -85,8 +86,8 @@ func (ctrl *EventController) GetEventByID(c *gin.Context) {
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /events/user [get] // adjust the path and HTTP method according to your routing
 func (ctrl *EventController) GetUserEvent(c *gin.Context) {
-	userID := c.GetString("user_id")
-	events, err := ctrl.eventService.FindByUserID(c, userID)
+	identity, _ := RetrieveIdentity(c, true)
+	events, err := ctrl.eventService.FindByUserID(c, identity.UserID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, model.Response{
 			Msg: err.Error(),
@@ -111,7 +112,8 @@ func (ctrl *EventController) GetUserEvent(c *gin.Context) {
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /events [post]
 func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
-	userID := c.GetString("user_id")
+	identity, _ := RetrieveIdentity(c, true)
+	userID := identity.UserID
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
 		c.AbortWithStatusJSON(400, model.Response{
@@ -156,7 +158,8 @@ func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 // @Router /events/{id} [put]
 func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	id := c.Param("id")
-	userID := c.GetString("user_id")
+	identity, _ := RetrieveIdentity(c, true)
+	userID := identity.UserID
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
 		c.AbortWithStatusJSON(400, model.Response{
@@ -204,7 +207,8 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /events/{event_id} [delete]
 func (ctrl *EventController) DeleteEvent(c *gin.Context) {
-	userID := c.GetString("user_id")
+	identity, _ := RetrieveIdentity(c, true)
+	userID := identity.UserID
 	eventID := c.Param("event_id")
 	_, err := ctrl.eventService.DeleteByUser(c, userID, eventID)
 	if err != nil {
