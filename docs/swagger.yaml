@@ -362,6 +362,25 @@ paths:
       summary: Handle LINE OAuth callback
       tags:
       - OAuth
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of users successfully retrieved
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.UserListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Get Users
+      tags:
+      - User
   /users/{user_id}:
     get:
       consumes:
@@ -449,12 +468,6 @@ paths:
       consumes:
       - application/json
       description: Fetches the profile of a user
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -533,25 +546,6 @@ paths:
           schema:
             $ref: '#/definitions/bikefest_pkg_model.Response'
       summary: Fake Register
-      tags:
-      - User
-  /users:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves a list of users
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of users successfully retrieved
-          schema:
-            $ref: '#/definitions/bikefest_pkg_model.UserListResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/bikefest_pkg_model.Response'
-      summary: Get Users
       tags:
       - User
 securityDefinitions:

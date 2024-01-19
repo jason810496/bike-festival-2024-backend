@@ -367,6 +367,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/users": {
+            "get": {
+                "description": "Retrieves a list of users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Users",
+                "responses": {
+                    "200": {
+                        "description": "List of users successfully retrieved",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.UserListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/users/login/{user_id}": {
             "get": {
                 "description": "Simulates a login process for a user by generating fake access and refresh tokens",
@@ -472,15 +501,6 @@ const docTemplate = `{
                     "User"
                 ],
                 "summary": "Profile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Profile successfully retrieved",
@@ -622,35 +642,6 @@ const docTemplate = `{
                         "description": "User successfully retrieved",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.UserResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/users": {
-            "get": {
-                "description": "Retrieves a list of users",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get Users",
-                "responses": {
-                    "200": {
-                        "description": "List of users successfully retrieved",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.UserListResponse"
                         }
                     },
                     "500": {
