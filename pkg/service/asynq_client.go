@@ -2,6 +2,7 @@ package service
 
 import (
 	"bikefest/pkg/bootstrap"
+	"bikefest/pkg/model"
 	"encoding/json"
 	"log"
 	"time"
@@ -41,6 +42,7 @@ func (as *AsynqServiceImpl) EnqueueEvent(user_id, event_id, event_start_time str
 
 	location, _ := time.LoadLocation(as.env.Server.TimeZone)
 	timeForm := "2006/01/02 15:04:05"
+	//TODO: currently we only set the process time 30 minutes before the event start time
 	process_time, _ := time.ParseInLocation(timeForm, event_start_time, location)
 	process_time = process_time.Add(-time.Minute * 30)
 
@@ -51,8 +53,8 @@ func (as *AsynqServiceImpl) EnqueueEvent(user_id, event_id, event_start_time str
 	log.Printf(" [*] Successfully enqueued task: %+v\nThe task should be executed at %s", info, process_time.String())
 }
 
-func NewAsynqService(client *asynq.Client, env *bootstrap.Env) AsynqServiceImpl {
-	return AsynqServiceImpl{
+func NewAsynqService(client *asynq.Client, env *bootstrap.Env) model.AsynqNotificationService {
+	return &AsynqServiceImpl{
 		client: client,
 		env:    env,
 	}

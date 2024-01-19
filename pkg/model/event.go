@@ -52,3 +52,7 @@ type EventService interface {
 	Delete(ctx context.Context, event *Event) (rowAffected int64, err error)
 	DeleteByUser(ctx context.Context, userID string, eventID string) (rowAffected int64, err error)
 }
+
+type AsynqNotificationService interface {
+	EnqueueEvent(user_id, event_id, event_start_time string)
+}

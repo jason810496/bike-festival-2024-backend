@@ -5,13 +5,12 @@ import (
 	"bikefest/pkg/controller"
 	"bikefest/pkg/middleware"
 	"bikefest/pkg/model"
-	"bikefest/pkg/service"
 )
 
 type Services struct {
 	UserService  model.UserService
 	EventService model.EventService
-	AsynqService service.AsynqServiceImpl
+	AsynqService model.AsynqNotificationService
 }
 
 func RegisterRoutes(app *bootstrap.Application, services *Services) {

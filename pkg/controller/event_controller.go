@@ -2,17 +2,15 @@ package controller
 
 import (
 	"bikefest/pkg/model"
-	"bikefest/pkg/service"
-
 	"github.com/gin-gonic/gin"
 )
 
 type EventController struct {
 	eventService model.EventService
-	asynqService service.AsynqServiceImpl
+	asynqService model.AsynqNotificationService
 }
 
-func NewEventController(eventService model.EventService, asynqService service.AsynqServiceImpl) *EventController {
+func NewEventController(eventService model.EventService, asynqService model.AsynqNotificationService) *EventController {
 	return &EventController{
 		eventService: eventService,
 		asynqService: asynqService,
