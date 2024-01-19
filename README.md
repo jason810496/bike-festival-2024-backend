@@ -51,5 +51,6 @@
 4. Run `make dev-up` to start the development database and redis
 [//]: # (5. Run `make dev-migrate` to migrate the database)
 5. Run `make run` to start the development server with **no** live reload
+   > Run `make serve` to start the development server with live reload(but requires `air` to be installed)
    1. Webserver will be listening on [localhost:8000](http://localhost:8000), you may change the port in `.env.dev`
 6. Run `make dev-down` to stop the development database and redis
