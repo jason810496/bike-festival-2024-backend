@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -79,23 +80,22 @@ func (ctrl *UserController) GetUserByID(c *gin.Context) {
 // @Tags Authentication
 // @Accept json
 // @Produce json
-// @Param refreshToken body model.RefreshTokenRequest true "Refresh Token"
 // @Success 200 {object} model.TokenResponse "Access and Refresh Tokens successfully generated"
 // @Failure 400 {object} model.Response "Bad Request - Invalid request format"
 // @Failure 401 {object} model.Response "Unauthorized - Invalid or expired refresh token"
 // @Failure 500 {object} model.Response "Internal Server Error - Error generating tokens"
-// @Router /users/refresh_token [post]
+// @Router /users/refresh_token [get]
 func (ctrl *UserController) RefreshToken(c *gin.Context) {
-	var request model.RefreshTokenRequest
-
-	if err := c.ShouldBind(&request); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
-			Msg: err.Error(),
+	// fetch refresh token from cookie
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
+			Msg: "old authorization not found",
 		})
 		return
 	}
 
-	identity, err := ctrl.userSvc.VerifyRefreshToken(c, request.RefreshToken, ctrl.env.JWT.RefreshTokenSecret)
+	identity, err := ctrl.userSvc.VerifyRefreshToken(c, refreshToken, ctrl.env.JWT.RefreshTokenSecret)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
 			Msg: err.Error(),
@@ -111,7 +111,7 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 		return
 	}
 
-	refreshToken, err := ctrl.userSvc.CreateRefreshToken(c, identity, ctrl.env.JWT.RefreshTokenSecret, ctrl.env.JWT.RefreshTokenExpiry)
+	refreshToken, err = ctrl.userSvc.CreateRefreshToken(c, identity, ctrl.env.JWT.RefreshTokenSecret, ctrl.env.JWT.RefreshTokenExpiry)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
@@ -123,6 +123,9 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
+
+	c.SetCookie("access_token", fmt.Sprintf("Bearer %s", accessToken), 3600, "/", "", false, true)
+	c.SetCookie("refresh_token", fmt.Sprintf("Bearer %s", refreshToken), 3600, "/", "", false, true)
 
 	c.JSON(http.StatusOK, model.TokenResponse{
 		Data: loginResponse,
@@ -160,15 +163,14 @@ func (ctrl *UserController) GetUsers(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Param Authorization header string true "Bearer [token]"
 // @Success 200 {object} model.Response "Logout successful"
 // @Failure 401 {object} model.Response "Unauthorized: Invalid token format"
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /users/logout [post]
 func (ctrl *UserController) Logout(c *gin.Context) {
 	// TODO: need to discuss where to read the token from (header or body or cookie)
-	authHeader := c.GetHeader("Authorization")
-	bearerToken := strings.Split(authHeader, " ")
+	authCookie, err := c.Cookie("access_token")
+	bearerToken := strings.Split(authCookie, " ")
 	if len(bearerToken) != 2 {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
 			Msg: "Invalid token format (length different from 2)",
@@ -176,7 +178,7 @@ func (ctrl *UserController) Logout(c *gin.Context) {
 		return
 	}
 	authToken := bearerToken[1]
-	err := ctrl.userSvc.Logout(c, &authToken, ctrl.env.JWT.AccessTokenSecret)
+	err = ctrl.userSvc.Logout(c, &authToken, ctrl.env.JWT.AccessTokenSecret)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
