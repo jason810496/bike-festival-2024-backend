@@ -452,15 +452,6 @@ const docTemplate = `{
                     "User"
                 ],
                 "summary": "User logout",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer [token]",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Logout successful",
@@ -518,7 +509,7 @@ const docTemplate = `{
             }
         },
         "/users/refresh_token": {
-            "post": {
+            "get": {
                 "description": "Refreshes the access and refresh tokens for a user",
                 "consumes": [
                     "application/json"
@@ -530,17 +521,6 @@ const docTemplate = `{
                     "Authentication"
                 ],
                 "summary": "Refresh User Token",
-                "parameters": [
-                    {
-                        "description": "Refresh Token",
-                        "name": "refreshToken",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.RefreshTokenRequest"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Access and Refresh Tokens successfully generated",
@@ -744,17 +724,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/bikefest_pkg_model.Event"
                 },
                 "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "bikefest_pkg_model.RefreshTokenRequest": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
                     "type": "string"
                 }
             }

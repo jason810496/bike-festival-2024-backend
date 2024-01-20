@@ -61,13 +61,6 @@ definitions:
       msg:
         type: string
     type: object
-  bikefest_pkg_model.RefreshTokenRequest:
-    properties:
-      refresh_token:
-        type: string
-    required:
-    - refresh_token
-    type: object
   bikefest_pkg_model.Response:
     properties:
       data: {}
@@ -437,12 +430,6 @@ paths:
       consumes:
       - application/json
       description: Logs out a user by invalidating their authentication token
-      parameters:
-      - description: Bearer [token]
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -485,17 +472,10 @@ paths:
       tags:
       - User
   /users/refresh_token:
-    post:
+    get:
       consumes:
       - application/json
       description: Refreshes the access and refresh tokens for a user
-      parameters:
-      - description: Refresh Token
-        in: body
-        name: refreshToken
-        required: true
-        schema:
-          $ref: '#/definitions/bikefest_pkg_model.RefreshTokenRequest'
       produces:
       - application/json
       responses:
