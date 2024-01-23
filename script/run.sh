@@ -77,7 +77,7 @@ case "$action" in
     migrate|run|serve|test)
         export_env $mode
         if [ "$action" = "migrate" ]; then
-            go run ./cmd/migrate/migrate.go
+            go run ./cmd/migrate.go
         elif [ "$action" = "run" ]; then
             go run ./cmd/main.go
         elif [ "$action" = "serve" ]; then
