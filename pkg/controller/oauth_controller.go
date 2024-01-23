@@ -37,7 +37,11 @@ type OAuthController struct {
 // @Failure 400 {string} string "Bad Request"
 // @Router /line-login/auth [get]
 func (ctrl *OAuthController) LineLogin(c *gin.Context) {
-	originalUrl := c.Request.Referer() + c.Query("redirect_path")[1:]
+	redirectedPath := c.Query("redirect_path")
+	originalUrl := c.Request.Referer()
+	if len(redirectedPath) != 0 {
+		originalUrl += redirectedPath[1:]
+	}
 
 	log.Println("originalUrl:", originalUrl)
 	serverURL := ctrl.env.Line.ServerUrl
