@@ -30,7 +30,7 @@ func NewEventController(eventService model.EventService, asynqService model.Asyn
 // @Router /events [get]
 func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 	page, limit := RetrievePagination(c)
-	events, err := ctrl.eventService.FindAll(c, page, limit)
+	events, err := ctrl.eventService.FindAll(c, int64(page), int64(limit))
 	if err != nil {
 		c.AbortWithStatusJSON(500, model.Response{
 			Msg: err.Error(),
@@ -39,107 +39,6 @@ func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 
 	c.JSON(200, model.EventListResponse{
 		Data: events,
-	})
-}
-
-// GetEventByID godoc
-// @Summary Get event by ID
-// @Description Retrieves an event using its unique ID
-// @Tags Event
-// @Accept json
-// @Produce json
-// @Param id path string true "Event ID"
-// @Success 200 {object} model.EventResponse "Event successfully retrieved"
-// @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /events/{id} [get]
-func (ctrl *EventController) GetEventByID(c *gin.Context) {
-	identity, _ := RetrieveIdentity(c, true)
-	id := c.Param("id")
-	userID := identity.UserID
-	event, err := ctrl.eventService.FindByID(c, id)
-	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
-			Msg: err.Error(),
-		})
-	}
-
-	if event.UserID != userID {
-		c.AbortWithStatusJSON(403, model.Response{
-			Msg: "permission denied",
-		})
-		return
-	}
-
-	c.JSON(200, model.EventResponse{
-		Data: event,
-	})
-}
-
-// GetUserEvent godoc
-// @Summary Get User Events
-// @Description Retrieves a list of events associated with a user
-// @Tags Event
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth // include this line if the endpoint is protected by an API key or other security mechanism
-// @Success 200 {object} model.EventListResponse "List of events associated with the user"
-// @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /events/user [get] // adjust the path and HTTP method according to your routing
-func (ctrl *EventController) GetUserEvent(c *gin.Context) {
-	identity, _ := RetrieveIdentity(c, true)
-	events, err := ctrl.eventService.FindByUserID(c, identity.UserID)
-	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
-			Msg: err.Error(),
-		})
-	}
-
-	c.JSON(200, model.EventListResponse{
-		Data: events,
-	})
-}
-
-// SubscribeEvent godoc
-// @Summary Subscribe to an event
-// @Description Subscribes a user to an event with the provided details
-// @Tags Event
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param request body model.CreateEventRequest true "Event Subscription Request"
-// @Success 200 {object} model.EventResponse "Successfully subscribed to the event"
-// @Failure 400 {object} model.Response "Bad Request - Invalid input"
-// @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /events [post]
-func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
-	identity, _ := RetrieveIdentity(c, true)
-	userID := identity.UserID
-	var request model.CreateEventRequest
-	if err := c.ShouldBind(&request); err != nil {
-		c.AbortWithStatusJSON(400, model.Response{
-			Msg: err.Error(),
-		})
-		return
-	}
-	newEvent := &model.Event{
-		UserID:         userID,
-		EventID:        request.EventID,
-		EventTimeStart: request.EventTimeStart,
-		EventTimeEnd:   request.EventTimeEnd,
-		EventDetail:    request.EventDetail,
-	}
-	err := ctrl.eventService.Store(c, newEvent)
-	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
-			Msg: err.Error(),
-		})
-		return
-	}
-
-	go ctrl.asynqService.EnqueueEvent(userID, request.EventID, *request.EventTimeStart)
-
-	c.JSON(200, model.EventResponse{
-		Data: newEvent,
 	})
 }
 
@@ -157,9 +56,17 @@ func (ctrl *EventController) SubscribeEvent(c *gin.Context) {
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /events/{id} [put]
 func (ctrl *EventController) UpdateEvent(c *gin.Context) {
+	// TODO: only allow admin to update event
+
 	id := c.Param("id")
 	identity, _ := RetrieveIdentity(c, true)
-	userID := identity.UserID
+	if identity.UserID != "admin" {
+		c.AbortWithStatusJSON(403, model.Response{
+			Msg: "permission denied",
+		})
+		return
+	}
+	_ = identity.UserID
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
 		c.AbortWithStatusJSON(400, model.Response{
@@ -175,8 +82,7 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 		return
 	}
 	updatedEvent := &model.Event{
-		UserID:         userID,
-		EventID:        request.EventID,
+		ID:             request.ID,
 		EventTimeStart: request.EventTimeStart,
 		EventTimeEnd:   request.EventTimeEnd,
 		EventDetail:    request.EventDetail,
@@ -191,34 +97,5 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 
 	c.JSON(200, model.EventResponse{
 		Data: event,
-	})
-}
-
-// DeleteEvent godoc
-// @Summary Delete event
-// @Description Deletes a specific event by its ID for a given user
-// @Tags Event
-// @Accept json
-// @Produce json
-// @Security ApiKeyAuth
-// @Param user_id header string true "User ID"
-// @Param event_id path string true "Event ID"
-// @Success 200 {object} model.Response "Event successfully deleted"
-// @Failure 500 {object} model.Response "Internal Server Error"
-// @Router /events/{event_id} [delete]
-func (ctrl *EventController) DeleteEvent(c *gin.Context) {
-	identity, _ := RetrieveIdentity(c, true)
-	userID := identity.UserID
-	eventID := c.Param("event_id")
-	_, err := ctrl.eventService.DeleteByUser(c, userID, eventID)
-	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
-			Msg: err.Error(),
-		})
-		return
-	}
-
-	c.JSON(200, model.Response{
-		Msg: "delete success",
 	})
 }

@@ -19,7 +19,7 @@ func RegisterRoutes(app *bootstrap.Application, services *Services) {
 	app.Engine.Use(cors)
 
 	// Register User Routes
-	userController := controller.NewUserController(services.UserService, app.Env)
+	userController := controller.NewUserController(services.UserService, services.EventService, services.AsynqService, app.Env)
 	RegisterUserRoutes(app, userController)
 
 	// Register Event Routes

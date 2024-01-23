@@ -11,9 +11,9 @@ func RegisterEventRouter(app *bootstrap.Application, controller *controller.Even
 	authMiddleware := middleware.AuthMiddleware(app.Env.JWT.AccessTokenSecret, app.Cache)
 
 	r.GET("", controller.GetAllEvent)
-	r.GET("/user", authMiddleware, controller.GetUserEvent)
-	r.GET("/:id", controller.GetEventByID)
-	r.POST("", controller.SubscribeEvent)
-	r.PUT("/:id", controller.UpdateEvent)
-	r.DELETE("/:event_id", controller.DeleteEvent)
+	//r.GET("/user", authMiddleware, controller.GetUserEvent)
+	//r.GET("/:id", controller.GetEventByID)
+	//r.POST("", controller.SubscribeEvent)
+	r.PUT("/:id", authMiddleware, controller.UpdateEvent)
+	//r.DELETE("/:event_id", controller.DeleteEvent)
 }
