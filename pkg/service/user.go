@@ -23,6 +23,23 @@ type UserServiceImpl struct {
 	cache *redis.Client
 }
 
+func (us *UserServiceImpl) SubscribeEvent(ctx context.Context, userID string, eventID string) error {
+	return us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Append(&model.Event{ID: &eventID})
+}
+
+func (us *UserServiceImpl) UnsubscribeEvent(ctx context.Context, userID string, eventID string) error {
+	return us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Delete(&model.Event{ID: &eventID})
+}
+
+func (us *UserServiceImpl) GetUserSubscribeEvents(ctx context.Context, userID string) ([]*model.Event, error) {
+	var events []*model.Event
+	err := us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Find(&events)
+	if err != nil {
+		return nil, err
+	}
+	return events, nil
+}
+
 func (us *UserServiceImpl) ListUsers(ctx context.Context) ([]*model.User, error) {
 	var users []*model.User
 	err := us.db.WithContext(ctx).Find(&users).Error

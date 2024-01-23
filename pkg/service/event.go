@@ -13,7 +13,7 @@ type EventServiceImpl struct {
 	cache *redis.Client
 }
 
-func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit uint64) (events []*model.Event, err error) {
+func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit int64) (events []*model.Event, err error) {
 	err = es.db.WithContext(ctx).Limit(int(limit)).Offset(int((page - 1) * limit)).Find(&events).Error
 	if err != nil {
 		return nil, err
@@ -22,15 +22,7 @@ func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit uint64) (ev
 }
 
 func (es *EventServiceImpl) FindByID(ctx context.Context, id string) (event *model.Event, err error) {
-	err = es.db.WithContext(ctx).Where(&model.Event{ID: id}).First(&event).Error
-	if err != nil {
-		return nil, err
-	}
-	return
-}
-
-func (es *EventServiceImpl) FindByUserID(ctx context.Context, userID string) (events []*model.Event, err error) {
-	err = es.db.WithContext(ctx).Where(&model.Event{UserID: userID}).Find(&events).Error
+	err = es.db.WithContext(ctx).Where(&model.Event{ID: &id}).First(&event).Error
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +34,6 @@ func (es *EventServiceImpl) Store(ctx context.Context, event *model.Event) error
 	if err != nil {
 		return err
 	}
-	// TODO: add event to distributed scheduler
 	return nil
 }
 
@@ -57,15 +48,6 @@ func (es *EventServiceImpl) Update(ctx context.Context, event *model.Event) (row
 
 func (es *EventServiceImpl) Delete(ctx context.Context, event *model.Event) (rowAffected int64, err error) {
 	res := es.db.WithContext(ctx).Delete(event)
-	rowAffected, err = res.RowsAffected, res.Error
-	if err != nil {
-		return 0, err
-	}
-	return
-}
-
-func (es *EventServiceImpl) DeleteByUser(ctx context.Context, userID string, eventID string) (rowAffected int64, err error) {
-	res := es.db.WithContext(ctx).Where(&model.Event{UserID: userID, EventID: eventID}).Delete(&model.Event{})
 	rowAffected, err = res.RowsAffected, res.Error
 	if err != nil {
 		return 0, err
