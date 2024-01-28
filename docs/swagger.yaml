@@ -2,10 +2,13 @@ definitions:
   bikefest_pkg_model.CreateEventRequest:
     properties:
       event_detail:
+        example: '{"title":"test event","description":"test event description"}'
         type: string
       event_time_end:
+        example: 2021/01/01 00:00
         type: string
       event_time_start:
+        example: 2021/01/01 00:00
         type: string
       id:
         type: string

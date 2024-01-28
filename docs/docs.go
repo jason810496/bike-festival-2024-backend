@@ -596,13 +596,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "event_detail": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "{\"title\":\"test event\",\"description\":\"test event description\"}"
                 },
                 "event_time_end": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021/01/01 00:00"
                 },
                 "event_time_start": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021/01/01 00:00"
                 },
                 "id": {
                     "type": "string"
