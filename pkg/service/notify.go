@@ -36,21 +36,23 @@ func newEventNotification(user_id, event_id string) (*asynq.Task, error) {
 
 func (as *AsynqServiceImpl) EnqueueEvent(user_id, event_id, event_start_time string) {
 	t, err := newEventNotification(user_id, event_id)
+func (as *AsynqServiceImpl) EnqueueEventNotification(userID, eventID, eventStartTime string) {
+	t, err := newEventNotification(userID, eventID)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	location, _ := time.LoadLocation(as.env.Server.TimeZone)
-	timeForm := "2006/01/02 15:04:05"
 	//TODO: currently we only set the process time 30 minutes before the event start time
-	process_time, _ := time.ParseInLocation(timeForm, event_start_time, location)
-	process_time = process_time.Add(-time.Minute * 30)
+	processTime, _ := time.ParseInLocation(model.EventTimeLayout, eventStartTime, location)
+	processTime = processTime.Add(-time.Minute * 30)
 
-	info, err := as.client.Enqueue(t, asynq.ProcessAt(process_time))
+	info, err := as.client.Enqueue(t, asynq.ProcessAt(processTime), asynq.TaskID(userID+eventID))
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf(" [*] Successfully enqueued task: %+v\nThe task should be executed at %s", info, process_time.String())
+	log.Printf(" [*] Successfully enqueued task: %+v\nThe task should be executed at %s", info, processTime.String())
 }
 
 func NewAsynqService(client *asynq.Client, env *bootstrap.Env) model.AsynqNotificationService {

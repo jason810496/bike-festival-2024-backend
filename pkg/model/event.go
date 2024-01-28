@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
+
+var EventTimeLayout = "2006/01/02 15:04"
 
 type Event struct {
 	gorm.Model
 	// the event id is defne at the frontend, if frontend don't have event id, the event id would be calculated by the hash of event detail and event time
-	ID             *string `gorm:"type:varchar(36);primary_key" json:"id"`
-	EventTimeStart *string `gorm:"type:varchar(255)" json:"event_time_start"`
-	EventTimeEnd   *string `gorm:"type:varchar(255)" json:"event_time_end"`
+	ID             *string    `gorm:"type:varchar(36);primary_key" json:"id"`
+	EventTimeStart *time.Time `gorm:"type:timestamp" json:"event_time_start"`
+	EventTimeEnd   *time.Time `gorm:"type:timestamp" json:"event_time_end"`
 	// the `EventDetail` field store the event detail in json format, this would be parsed when send to line message API
 	EventDetail *string `gorm:"type:varchar(1024)" json:"event_detail"`
 }
@@ -41,9 +44,9 @@ func CaculateEventID(event *Event) (string, error) {
 
 type CreateEventRequest struct {
 	ID             *string `json:"id"`
-	EventTimeStart *string `json:"event_time_start"`
-	EventTimeEnd   *string `json:"event_time_end"`
-	EventDetail    *string `json:"event_detail"`
+	EventTimeStart string  `json:"event_time_start" example:"2021/01/01 00:00"`
+	EventTimeEnd   string  `json:"event_time_end" example:"2021/01/01 00:00"`
+	EventDetail    *string `json:"event_detail" example:"{\"title\":\"test event\",\"description\":\"test event description\"}"`
 }
 
 type EventResponse struct {

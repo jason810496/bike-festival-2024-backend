@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"bikefest/pkg/bootstrap"
 	"bikefest/pkg/model"
@@ -300,10 +301,24 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 		return
 	}
 
+	eventTimeStart, err := time.Parse(model.EventTimeLayout, request.EventTimeStart)
+	if err != nil {
+		c.AbortWithStatusJSON(400, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+	eventTimeEnd, err := time.Parse(model.EventTimeLayout, request.EventTimeEnd)
+	if err != nil {
+		c.AbortWithStatusJSON(400, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
 	newEvent := &model.Event{
 		ID:             request.ID,
-		EventTimeStart: request.EventTimeStart,
-		EventTimeEnd:   request.EventTimeEnd,
+		EventTimeStart: &eventTimeStart,
+		EventTimeEnd:   &eventTimeEnd,
 		EventDetail:    request.EventDetail,
 	}
 	if newEvent.ID == nil {
@@ -315,7 +330,7 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 		newEvent.ID = &newEventId
 	}
 	_ = ctrl.eventSvc.Store(c, newEvent)
-	err := ctrl.userSvc.SubscribeEvent(c, userID, *newEvent.ID)
+	err = ctrl.userSvc.SubscribeEvent(c, userID, *newEvent.ID)
 	if err != nil {
 		c.AbortWithStatusJSON(500, model.Response{
 			Msg: err.Error(),

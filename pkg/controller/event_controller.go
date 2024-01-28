@@ -3,6 +3,7 @@ package controller
 import (
 	"bikefest/pkg/model"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type EventController struct {
@@ -81,10 +82,12 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 		})
 		return
 	}
+	eventStartTimeP := parseEventTime(request.EventTimeStart, model.EventTimeLayout)
+	eventEndTimeP := parseEventTime(request.EventTimeEnd, model.EventTimeLayout)
 	updatedEvent := &model.Event{
 		ID:             request.ID,
-		EventTimeStart: request.EventTimeStart,
-		EventTimeEnd:   request.EventTimeEnd,
+		EventTimeStart: eventStartTimeP,
+		EventTimeEnd:   eventEndTimeP,
 		EventDetail:    request.EventDetail,
 	}
 	_, err = ctrl.eventService.Update(c, updatedEvent)
@@ -98,4 +101,12 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	c.JSON(200, model.EventResponse{
 		Data: event,
 	})
+}
+
+func parseEventTime(timeStr string, layout string) *time.Time {
+	t, err := time.Parse(layout, timeStr)
+	if err != nil {
+		return nil
+	}
+	return &t
 }
