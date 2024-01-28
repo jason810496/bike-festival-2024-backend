@@ -6,6 +6,8 @@ import (
 	"bikefest/pkg/router"
 	"bikefest/pkg/service"
 	"fmt"
+	"github.com/hibiken/asynq"
+	"github.com/hibiken/asynqmon"
 	"net/http"
 	"net/http/httputil"
 
@@ -47,6 +49,20 @@ func ReverseProxy() gin.HandlerFunc {
 	}
 }
 
+func SetUpAsynqMon(app *bootstrap.Application) {
+	h := asynqmon.New(asynqmon.Options{
+		RootPath:     "/monitoring", // RootPath specifies the root for asynqmon app
+		RedisConnOpt: asynq.RedisClientOpt{Addr: app.Cache.Options().Addr},
+	})
+
+	// Use Gin's Group function to create a route group with the specified prefix
+	monitoringGroup := app.Engine.Group(h.RootPath())
+
+	// Use the Gin.WrapH function to convert Asynqmon's http.Handler to a Gin-compatible handler
+	// and register it to handle all routes under "/monitoring/"
+	monitoringGroup.Any("/*action", gin.WrapH(h))
+}
+
 func main() {
 	// init config
 	app := bootstrap.App()
@@ -54,7 +70,7 @@ func main() {
 	// init services
 	userService := service.NewUserService(app.Conn, app.Cache)
 	eventService := service.NewEventService(app.Conn, app.Cache)
-	asynqService := service.NewAsynqService(app.AsynqClient, app.Env)
+	asynqService := service.NewAsynqService(app.AsynqClient, app.AsyncqInspector, app.Env)
 
 	services := &router.Services{
 		UserService:  userService,
@@ -70,6 +86,7 @@ func main() {
 	// @in header
 	// @name Authorization
 	SetUpSwagger(docs.SwaggerInfo, app)
+	SetUpAsynqMon(app)
 	app.Engine.GET("/swagger/*any",
 		ginSwagger.WrapHandler(
 			swaggerfiles.Handler,
