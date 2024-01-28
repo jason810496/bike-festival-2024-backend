@@ -22,20 +22,29 @@ type eventNotificationPayload struct {
 }
 
 type AsynqServiceImpl struct {
-	client *asynq.Client
-	env    *bootstrap.Env
+	client    *asynq.Client
+	inspector *asynq.Inspector
+	env       *bootstrap.Env
 }
 
-func newEventNotification(user_id, event_id string) (*asynq.Task, error) {
-	payload, err := json.Marshal(eventNotificationPayload{UserID: user_id, EventID: event_id})
+func newEventNotification(userId, eventId string) (*asynq.Task, error) {
+	payload, err := json.Marshal(eventNotificationPayload{UserID: userId, EventID: eventId})
 	if err != nil {
 		return nil, err
 	}
+
 	return asynq.NewTask(TypeEventReminder, payload), nil
 }
 
-func (as *AsynqServiceImpl) EnqueueEvent(user_id, event_id, event_start_time string) {
-	t, err := newEventNotification(user_id, event_id)
+// DeleteEventNotification deletes the task from the queue.
+// the taskID is the userID + eventID
+func (as *AsynqServiceImpl) DeleteEventNotification(taskID string) {
+	err := as.inspector.DeleteTask("default", taskID)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (as *AsynqServiceImpl) EnqueueEventNotification(userID, eventID, eventStartTime string) {
 	t, err := newEventNotification(userID, eventID)
 	if err != nil {
@@ -55,9 +64,10 @@ func (as *AsynqServiceImpl) EnqueueEventNotification(userID, eventID, eventStart
 	log.Printf(" [*] Successfully enqueued task: %+v\nThe task should be executed at %s", info, processTime.String())
 }
 
-func NewAsynqService(client *asynq.Client, env *bootstrap.Env) model.AsynqNotificationService {
+func NewAsynqService(client *asynq.Client, inspector *asynq.Inspector, env *bootstrap.Env) model.AsynqNotificationService {
 	return &AsynqServiceImpl{
-		client: client,
-		env:    env,
+		client:    client,
+		inspector: inspector,
+		env:       env,
 	}
 }

@@ -28,6 +28,7 @@ type Application struct {
 	Engine           *gin.Engine
 	LineSocialClient *social.Client
 	AsynqClient      *asynq.Client
+	AsyncqInspector  *asynq.Inspector
 }
 
 func App(opts ...AppOpts) *Application {
@@ -37,6 +38,7 @@ func App(opts ...AppOpts) *Application {
 	engine := gin.Default()
 	lineSocialClient := NewLineSocialClient(env)
 	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: cache.Options().Addr})
+	asynqInspector := asynq.NewInspector(asynq.RedisClientOpt{Addr: cache.Options().Addr})
 
 	// Set timezone
 	tz, err := time.LoadLocation(env.Server.TimeZone)
@@ -52,6 +54,7 @@ func App(opts ...AppOpts) *Application {
 		Engine:           engine,
 		LineSocialClient: lineSocialClient,
 		AsynqClient:      asynqClient,
+		AsyncqInspector:  asynqInspector,
 	}
 
 	for _, opt := range opts {
