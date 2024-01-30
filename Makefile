@@ -50,3 +50,6 @@ run: ## Run the application
 
 docs: install ## Generate the swagger docs
 	swag init --parseDependency --parseInternal -g ./cmd/main.go
+
+bot: ## Run the bot
+	./script/run.sh dev bot

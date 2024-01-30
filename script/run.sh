@@ -74,12 +74,14 @@ case "$action" in
         fi
         ;;
 
-    migrate|run|serve|test)
+    migrate|run|serve|test|bot)
         export_env $mode
         if [ "$action" = "migrate" ]; then
             go run ./cmd/migrate.go
         elif [ "$action" = "run" ]; then
             go run ./cmd/main.go
+        elif [ "$action" = "bot" ]; then
+            go run ./cmd/notification.go
         elif [ "$action" = "serve" ]; then
             air
         elif [ "$action" = "test" ]; then
