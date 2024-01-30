@@ -54,3 +54,11 @@
    > Run `make serve` to start the development server with live reload(but requires `air` to be installed)
    1. Webserver will be listening on [localhost:8000](http://localhost:8000), you may change the port in `.env.dev`
 6. Run `make dev-down` to stop the development database and redis
+
+## Event Notification Server
+
+Push upcoming event notification to the users who subscribed to the event
+
+```shell
+make bot
+```
