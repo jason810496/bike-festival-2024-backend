@@ -8,7 +8,10 @@ import (
 	"time"
 )
 
-var EventTimeLayout = "2006/01/02 15:04"
+var (
+	EventTimeLayout = "2006/01/02 15:04"
+	EventCacheKey   = "Event:"
+)
 
 type Event struct {
 	gorm.Model
@@ -26,6 +29,33 @@ func (e *Event) BeforeCreate(*gorm.DB) error {
 		e.ID = &uuidStr
 	}
 	return nil
+}
+
+//	{
+//	   "id": "1",
+//	   "name": "企管系-企鵝管理員",
+//	   "activity": "科系博覽",
+//	   "project": "科系體驗坊",
+//	   "description": "好冷好冷，住在冰屋的小企鵝要沒食物吃了，整天在家就是吃飯睡覺打咚咚，想說去買個彩券發家致富結果輸到脫褲，口袋空空的企鵝透過SWOT分析發現自己很適合管理，便應徵到位於北極的南極股份公司的管理員，透過成為企鵝管理員發大財！你也想了解發大財的秘訣嗎？那就快來參加企管的科系體驗坊吧！",
+//	   "date": "3/2",
+//	   "startTime": "09:00",
+//	   "endTime": "10:20",
+//	   "location": "小西門砲台側",
+//	   "host": "單車節學術部",
+//	   "link": "https://kktix.com/events/17th-2/registrations/new"
+//	 }
+type EventDetails struct {
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Activity    string `json:"activity"`
+	Project     string `json:"project"`
+	Description string `json:"description"`
+	Date        string `json:"date"`
+	StartTime   string `json:"startTime"`
+	EndTime     string `json:"endTime"`
+	Location    string `json:"location"`
+	Host        string `json:"host"`
+	Link        string `json:"link"`
 }
 
 func CaculateEventID(event *Event) (string, error) {
