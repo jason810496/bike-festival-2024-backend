@@ -20,5 +20,6 @@ func RegisterUserRoutes(app *bootstrap.Application, controller *controller.UserC
 
 	r.GET("/events", authMiddleware, controller.GetUserSubscribeEvents)
 	r.POST("/events", authMiddleware, controller.SubscribeEvent)
+	r.POST("/events/all", authMiddleware, controller.SubscribeAllEvent)
 	r.DELETE("/events/:event_id", authMiddleware, controller.UnScribeEvent)
 }

@@ -24,6 +24,9 @@ type UserServiceImpl struct {
 }
 
 func (us *UserServiceImpl) SubscribeEvent(ctx context.Context, userID string, eventID string) error {
+	if err := us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Find(&model.Event{ID: &eventID}); err == nil {
+		return errors.New("already subscribed this event")
+	}
 	return us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Append(&model.Event{ID: &eventID})
 }
 

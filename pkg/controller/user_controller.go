@@ -345,6 +345,54 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 	})
 }
 
+// SubscribeAllEvent godoc
+// @Summary Subscribe to all events, and if remind is true, it will send all the event notification to user immediately
+// @Description Subscribes a user to all events
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param remind query bool false "Send the Line notification immediately" default("true")
+// @Success 200 {object} model.EventResponse "Successfully subscribed to the event"
+// @Failure 400 {object} model.Response "Bad Request - Invalid input"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /users/events/all [post]
+func (ctrl *UserController) SubscribeAllEvent(c *gin.Context) {
+	identity, _ := RetrieveIdentity(c, true)
+	remind, _ := strconv.ParseBool(c.Query("remind"))
+	userID := identity.UserID
+
+	events, err := ctrl.eventSvc.FindAll(c, 1, 100)
+	if err != nil {
+		c.AbortWithStatusJSON(500, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+
+	for _, event := range events {
+		err = ctrl.userSvc.SubscribeEvent(c, userID, *event.ID)
+		if err != nil {
+			c.AbortWithStatusJSON(500, model.Response{
+				Msg: err.Error(),
+			})
+			return
+		}
+	}
+	if !remind {
+		return
+	}
+	for _, event := range events {
+		err := ctrl.asynqService.EnqueueEventNotification(c, userID, *event.ID, model.EventTimeLayout)
+		if err != nil {
+			c.AbortWithStatusJSON(500, model.Response{
+				Msg: err.Error(),
+			})
+			return
+		}
+	}
+}
+
 // UnScribeEvent godoc
 // @Summary Delete event
 // @Description Deletes a specific event by its ID for a given user
