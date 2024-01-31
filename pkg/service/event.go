@@ -3,14 +3,33 @@ package service
 import (
 	"bikefest/pkg/model"
 	"context"
-
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"time"
 )
 
 type EventServiceImpl struct {
 	db    *gorm.DB
 	cache *redis.Client
+}
+
+func (es *EventServiceImpl) StoreAll(ctx context.Context, events []*model.Event) error {
+	txn := es.db.WithContext(ctx).Begin()
+	for _, event := range events {
+		err := txn.WithContext(ctx).Create(event).Error
+		if err != nil {
+			txn.Rollback()
+			return err
+		}
+	}
+	err := txn.Commit().Error
+	if err != nil {
+		return err
+	}
+	for _, event := range events {
+		go es.cache.Del(ctx, model.EventCacheKey+*event.ID)
+	}
+	return err
 }
 
 func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit int64) (events []*model.Event, err error) {

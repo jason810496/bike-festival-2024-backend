@@ -12,8 +12,9 @@ func RegisterEventRouter(app *bootstrap.Application, controller *controller.Even
 
 	r.GET("", controller.GetAllEvent)
 	//r.GET("/user", authMiddleware, controller.GetUserEvent)
-	//r.GET("/:id", controller.GetEventByID)
+	r.GET("/:id", controller.GetEventByID)
 	//r.POST("", controller.SubscribeEvent)
 	r.PUT("/:id", authMiddleware, controller.UpdateEvent)
+	r.GET("/test-store-all", controller.StoreAllEvent)
 	//r.DELETE("/:event_id", controller.DeleteEvent)
 }

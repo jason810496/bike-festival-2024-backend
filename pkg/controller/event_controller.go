@@ -2,7 +2,13 @@ package controller
 
 import (
 	"bikefest/pkg/model"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -16,6 +22,32 @@ func NewEventController(eventService model.EventService, asynqService model.Asyn
 		eventService: eventService,
 		asynqService: asynqService,
 	}
+}
+
+// GetEventByID godoc
+// @Summary Get an event by ID
+// @Description Retrieves an event by ID
+// @Tags Event
+// @Accept json
+// @Produce json
+// @Param id path string true "Event ID"
+// @Success 200 {object} model.EventResponse
+// @Failure 404 {object} model.Response
+// @Failure 500 {object} model.Response
+// @Router /events/{id} [get]
+func (ctrl *EventController) GetEventByID(c *gin.Context) {
+	id := c.Param("id")
+	event, err := ctrl.eventService.FindByID(c, id)
+	if err != nil {
+		c.AbortWithStatusJSON(404, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, model.EventResponse{
+		Data: event,
+	})
 }
 
 // GetAllEvent godoc
@@ -100,6 +132,65 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 
 	c.JSON(200, model.EventResponse{
 		Data: event,
+	})
+}
+
+// StoreAllEvent godoc
+// @Summary Store all events from the json file in the frontend repo
+// @Tags Event
+// @Accept json
+// @Produce json
+// @Router /events/test-store-all [get]
+func (ctrl *EventController) StoreAllEvent(c *gin.Context) {
+	jsonURL := "https://raw.githubusercontent.com/gdsc-ncku/BikeFestival17th-Frontend/main/src/data/event.json"
+	var eventDetails []model.EventDetails
+	var events []*model.Event
+
+	resp, err := http.Get(jsonURL)
+	if err != nil {
+		c.AbortWithStatusJSON(500, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&eventDetails); err != nil {
+		c.AbortWithStatusJSON(500, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+	for _, eventDetail := range eventDetails {
+		eventStartTimeP := parseEventTime("2024/"+eventDetail.Date+" "+eventDetail.StartTime, model.EventTimeLayout)
+		eventEndTimeP := parseEventTime("2024/"+eventDetail.Date+" "+eventDetail.EndTime, model.EventTimeLayout)
+		// stringfy the event eventDetail
+		eventDetailJson, err := json.Marshal(eventDetail)
+		if err != nil {
+			c.AbortWithStatusJSON(500, model.Response{
+				Msg: err.Error(),
+			})
+			return
+		}
+		eventDetailStr := string(eventDetailJson)
+		eventID := eventDetail.ID
+		event := &model.Event{
+			ID:             &eventID,
+			EventTimeStart: eventStartTimeP,
+			EventTimeEnd:   eventEndTimeP,
+			EventDetail:    &eventDetailStr,
+		}
+		events = append(events, event)
+	}
+	err = ctrl.eventService.StoreAll(c, events)
+	if err != nil {
+		c.AbortWithStatusJSON(500, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+	c.JSON(200, model.Response{
+		Msg: "store all events success",
 	})
 }
 

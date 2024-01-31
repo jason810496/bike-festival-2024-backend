@@ -104,6 +104,7 @@ type EventService interface {
 	Store(ctx context.Context, event *Event) error
 	Update(ctx context.Context, event *Event) (rowAffected int64, err error)
 	Delete(ctx context.Context, event *Event) (rowAffected int64, err error)
+	StoreAll(ctx context.Context, events []*Event) error
 }
 
 type AsynqNotificationService interface {
