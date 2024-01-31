@@ -153,6 +153,34 @@ paths:
       tags:
       - Event
   /events/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an event by ID
+      parameters:
+      - description: Event ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      summary: Get an event by ID
+      tags:
+      - Event
     put:
       consumes:
       - application/json
@@ -187,6 +215,16 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update an event
+      tags:
+      - Event
+  /events/test-store-all:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses: {}
+      summary: Store all events from the json file in the frontend repo
       tags:
       - Event
   /line-login/auth:
@@ -365,6 +403,37 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete event
+      tags:
+      - User
+  /users/events/all:
+    post:
+      consumes:
+      - application/json
+      description: Subscribes a user to all events
+      parameters:
+      - description: Send the Line notification immediately
+        in: query
+        name: remind
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully subscribed to the event
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.EventResponse'
+        "400":
+          description: Bad Request - Invalid input
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Subscribe to all events, and if remind is true, it will send all the
+        event notification to user immediately
       tags:
       - User
   /users/login/{user_id}:
