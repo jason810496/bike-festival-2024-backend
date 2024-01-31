@@ -16,11 +16,20 @@ var (
 type Event struct {
 	gorm.Model
 	// the event id is defne at the frontend, if frontend don't have event id, the event id would be calculated by the hash of event detail and event time
-	ID             *string    `gorm:"type:varchar(36);primary_key" json:"id"`
-	EventTimeStart *time.Time `gorm:"type:timestamp" json:"event_time_start"`
-	EventTimeEnd   *time.Time `gorm:"type:timestamp" json:"event_time_end"`
+	ID             *string    `gorm:"type:varchar(36);primary_key" json:"id" redis:"id"`
+	EventTimeStart *time.Time `gorm:"type:timestamp" json:"event_time_start" redis:"event_time_start"`
+	EventTimeEnd   *time.Time `gorm:"type:timestamp" json:"event_time_end" redis:"event_time_end"`
 	// the `EventDetail` field store the event detail in json format, this would be parsed when send to line message API
-	EventDetail *string `gorm:"type:varchar(1024)" json:"event_detail"`
+	EventDetail *string `gorm:"type:varchar(1024)" json:"event_detail" redis:"event_detail"`
+}
+
+type EventCache struct {
+	ID             string    `json:"id" redis:"id"`
+	EventTimeStart time.Time `json:"event_time_start" redis:"event_time_start"`
+	EventTimeEnd   time.Time `json:"event_time_end" redis:"event_time_end"`
+	EventDetail    string    `json:"event_detail" redis:"event_detail"`
+	CreatedAt      time.Time `json:"created_at" redis:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at" redis:"updated_at"`
 }
 
 func (e *Event) BeforeCreate(*gorm.DB) error {

@@ -104,8 +104,19 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 }
 
 func parseEventTime(timeStr string, layout string) *time.Time {
-	t, err := time.Parse(layout, timeStr)
+	parts := strings.Split(timeStr, "/")
+	dateParts := strings.Split(parts[2], " ")
+
+	// Convert month and day parts to integers
+	year, _ := strconv.Atoi(parts[0])
+	month, _ := strconv.Atoi(parts[1])
+	day, _ := strconv.Atoi(dateParts[0])
+
+	// Reassemble the string with leading zeros for month and day
+	normalizedTimeString := fmt.Sprintf("%d/%02d/%02d %s", year, month, day, dateParts[1])
+	t, err := time.Parse(layout, normalizedTimeString)
 	if err != nil {
+		log.Println(err)
 		return nil
 	}
 	return &t

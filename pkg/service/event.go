@@ -22,10 +22,35 @@ func (es *EventServiceImpl) FindAll(ctx context.Context, page, limit int64) (eve
 }
 
 func (es *EventServiceImpl) FindByID(ctx context.Context, id string) (event *model.Event, err error) {
+	eventCache := &model.EventCache{}
+	err = es.cache.HGetAll(ctx, model.EventCacheKey+id).Scan(eventCache)
+	if err == nil && eventCache.ID != "" {
+		event = &model.Event{
+			ID:             &eventCache.ID,
+			EventTimeStart: &eventCache.EventTimeStart,
+			EventTimeEnd:   &eventCache.EventTimeEnd,
+			EventDetail:    &eventCache.EventDetail,
+			Model: gorm.Model{
+				CreatedAt: eventCache.CreatedAt,
+				UpdatedAt: eventCache.UpdatedAt,
+			},
+		}
+		return
+	}
 	err = es.db.WithContext(ctx).Where(&model.Event{ID: &id}).First(&event).Error
 	if err != nil {
 		return nil, err
 	}
+	eventCache = &model.EventCache{
+		ID:             *event.ID,
+		EventTimeStart: *event.EventTimeStart,
+		EventTimeEnd:   *event.EventTimeEnd,
+		EventDetail:    *event.EventDetail,
+		CreatedAt:      event.CreatedAt,
+		UpdatedAt:      event.UpdatedAt,
+	}
+	err = es.cache.HSet(ctx, model.EventCacheKey+id, eventCache).Err()
+	es.cache.Expire(ctx, model.EventCacheKey+id, 2*time.Hour)
 	return
 }
 
@@ -34,6 +59,7 @@ func (es *EventServiceImpl) Store(ctx context.Context, event *model.Event) error
 	if err != nil {
 		return err
 	}
+	go es.cache.Del(ctx, model.EventCacheKey+*event.ID)
 	return nil
 }
 
@@ -43,6 +69,7 @@ func (es *EventServiceImpl) Update(ctx context.Context, event *model.Event) (row
 	if err != nil {
 		return 0, err
 	}
+	go es.cache.Del(ctx, model.EventCacheKey+*event.ID)
 	return
 }
 
@@ -52,6 +79,7 @@ func (es *EventServiceImpl) Delete(ctx context.Context, event *model.Event) (row
 	if err != nil {
 		return 0, err
 	}
+	go es.cache.Del(ctx, model.EventCacheKey+*event.ID)
 	return
 }
 
