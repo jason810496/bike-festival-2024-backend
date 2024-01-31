@@ -108,7 +108,7 @@ type EventService interface {
 }
 
 type AsynqNotificationService interface {
-	EnqueueEventNotification(userID, eventID, eventStartTime string)
-	DeleteEventNotification(TaskID string)
+	EnqueueEventNotification(ctx context.Context, userID, eventID, eventStartTime string) error
+	DeleteEventNotification(ctx context.Context, TaskID string) error
 	// TODO: delete event notification by event id
 }

@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func CreateFlexMessage(event *model.EventDetails) *linebot.FlexContainer {
+func CreateFlexMessage(event *model.EventDetails) (*linebot.FlexContainer, error) {
 	// Construct the Flex Message payload using event details
 	contents := map[string]interface{}{
 		"type": "bubble",
@@ -20,15 +20,16 @@ func CreateFlexMessage(event *model.EventDetails) *linebot.FlexContainer {
 
 	contentsJSON, err := json.Marshal(contents)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	flexContainer, err := linebot.UnmarshalFlexMessageJSON(contentsJSON)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return nil, err
 	}
 
-	return &flexContainer
+	return &flexContainer, nil
 }
 
 func buildContents(event *model.EventDetails) []map[string]interface{} {

@@ -3,6 +3,7 @@ package service
 import (
 	"bikefest/pkg/bootstrap"
 	"bikefest/pkg/model"
+	"context"
 	"encoding/json"
 	"log"
 	"time"
@@ -38,17 +39,18 @@ func newEventNotification(userId, eventId string) (*asynq.Task, error) {
 
 // DeleteEventNotification deletes the task from the queue.
 // the taskID is the userID + eventID
-func (as *AsynqServiceImpl) DeleteEventNotification(taskID string) {
+func (as *AsynqServiceImpl) DeleteEventNotification(ctx context.Context, taskID string) error {
 	err := as.inspector.DeleteTask("default", taskID)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
-func (as *AsynqServiceImpl) EnqueueEventNotification(userID, eventID, eventStartTime string) {
+func (as *AsynqServiceImpl) EnqueueEventNotification(ctx context.Context, userID, eventID, eventStartTime string) error {
 	t, err := newEventNotification(userID, eventID)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	location, _ := time.LoadLocation(as.env.Server.TimeZone)
@@ -59,9 +61,10 @@ func (as *AsynqServiceImpl) EnqueueEventNotification(userID, eventID, eventStart
 	info, err := as.client.Enqueue(t, asynq.ProcessAt(processTime), asynq.TaskID(userID+eventID))
 
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	log.Printf(" [*] Successfully enqueued task: %+v\nThe task should be executed at %s", info, processTime.String())
+	return nil
 }
 
 func NewAsynqService(client *asynq.Client, inspector *asynq.Inspector, env *bootstrap.Env) model.AsynqNotificationService {

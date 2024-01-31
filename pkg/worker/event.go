@@ -41,17 +41,24 @@ func (eth *EventTaskHandler) HandleEventTask(ctx context.Context, t *asynq.Task)
 	eventDetails := model.EventDetails{}
 	err = json.Unmarshal([]byte(*event.EventDetail), &eventDetails)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 
-	flexContainer := line_utils.CreateFlexMessage(&eventDetails)
-	flexMessage := linebot.NewFlexMessage(fmt.Sprintf("Event: %s, 即將開始", eventDetails.Name), *flexContainer)
+	var message linebot.SendingMessage
+	flexContainer, err := line_utils.CreateFlexMessage(&eventDetails)
+	if err != nil {
+		message = linebot.NewTextMessage(fmt.Sprintf("Event: %s, 即將開始", eventDetails.Name))
+	} else {
+		message = linebot.NewFlexMessage(fmt.Sprintf("Event: %s, 即將開始", eventDetails.Name), *flexContainer)
+	}
 
 	//message := linebot.NewTextMessage(fmt.Sprintf("Hello, Event %s is going to start within 30 minutes!!!", p.EventID))
 
-	_, err = eth.bot.PushMessage(p.UserID, flexMessage).Do()
+	_, err = eth.bot.PushMessage(p.UserID, message).Do()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 
 	return nil

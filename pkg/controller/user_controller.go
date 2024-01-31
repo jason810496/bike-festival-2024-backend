@@ -338,7 +338,13 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 		return
 	}
 
-	go ctrl.asynqService.EnqueueEventNotification(userID, *request.ID, request.EventTimeStart)
+	err = ctrl.asynqService.EnqueueEventNotification(c, userID, *request.ID, request.EventTimeStart)
+	if err != nil {
+		c.AbortWithStatusJSON(500, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
 
 	c.JSON(200, model.EventResponse{
 		Data: newEvent,
@@ -416,7 +422,13 @@ func (ctrl *UserController) UnScribeEvent(c *gin.Context) {
 		return
 	}
 
-	go ctrl.asynqService.DeleteEventNotification(userID + eventID)
+	err = ctrl.asynqService.DeleteEventNotification(c, userID+eventID)
+	if err != nil {
+		c.AbortWithStatusJSON(500, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
 
 	c.JSON(200, model.Response{
 		Msg: "delete success",
