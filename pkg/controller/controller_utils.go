@@ -23,7 +23,7 @@ func RetrievePagination(c *gin.Context) (page, limit uint64) {
 		limit = 10
 	}
 
-	return page, limit
+	return
 }
 
 // RetrieveIdentity retrieves the identity of the user from the context.
