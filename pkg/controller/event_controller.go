@@ -40,13 +40,13 @@ func (ctrl *EventController) GetEventByID(c *gin.Context) {
 	id := c.Param("id")
 	event, err := ctrl.eventService.FindByID(c, id)
 	if err != nil {
-		c.AbortWithStatusJSON(404, model.Response{
+		c.AbortWithStatusJSON(http.StatusNotFound, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
 
-	c.JSON(200, model.EventResponse{
+	c.JSON(http.StatusOK, model.EventResponse{
 		Data: event,
 	})
 }
@@ -66,12 +66,12 @@ func (ctrl *EventController) GetAllEvent(c *gin.Context) {
 	page, limit := RetrievePagination(c)
 	events, err := ctrl.eventService.FindAll(c, int64(page), int64(limit))
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 	}
 
-	c.JSON(200, model.EventListResponse{
+	c.JSON(http.StatusOK, model.EventListResponse{
 		Data: events,
 	})
 }
@@ -95,7 +95,7 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	id := c.Param("id")
 	identity, _ := RetrieveIdentity(c, true)
 	if identity.UserID != "admin" {
-		c.AbortWithStatusJSON(403, model.Response{
+		c.AbortWithStatusJSON(http.StatusForbidden, model.Response{
 			Msg: "Permission denied",
 		})
 		return
@@ -103,14 +103,14 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	// _ = identity.UserID
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
-		c.AbortWithStatusJSON(400, model.Response{
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
 	event, err := ctrl.eventService.FindByID(c, id)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -125,13 +125,13 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	}
 	_, err = ctrl.eventService.Update(c, updatedEvent)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
 
-	c.JSON(200, model.EventResponse{
+	c.JSON(http.StatusOK, model.EventResponse{
 		Data: event,
 	})
 }
@@ -149,7 +149,7 @@ func (ctrl *EventController) StoreAllEvent(c *gin.Context) {
 
 	resp, err := http.Get(jsonURL)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -157,7 +157,7 @@ func (ctrl *EventController) StoreAllEvent(c *gin.Context) {
 	defer resp.Body.Close()
 
 	if err := json.NewDecoder(resp.Body).Decode(&eventDetails); err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -165,10 +165,10 @@ func (ctrl *EventController) StoreAllEvent(c *gin.Context) {
 	for _, eventDetail := range eventDetails {
 		eventStartTimeP := parseEventTime("2024/"+eventDetail.Date+" "+eventDetail.StartTime, model.EventTimeLayout)
 		eventEndTimeP := parseEventTime("2024/"+eventDetail.Date+" "+eventDetail.EndTime, model.EventTimeLayout)
-		// stringfy the event eventDetail
+		// Stringnify the event eventDetail
 		eventDetailJson, err := json.Marshal(eventDetail)
 		if err != nil {
-			c.AbortWithStatusJSON(500, model.Response{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 				Msg: err.Error(),
 			})
 			return
@@ -185,13 +185,13 @@ func (ctrl *EventController) StoreAllEvent(c *gin.Context) {
 	}
 	err = ctrl.eventService.StoreAll(c, events)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
-	c.JSON(200, model.Response{
-		Msg: "store all events success",
+	c.JSON(http.StatusOK, model.Response{
+		Msg: "Store all events success",
 	})
 }
 
