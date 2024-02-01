@@ -27,7 +27,7 @@ func RetrievePagination(c *gin.Context) (page, limit uint64) {
 }
 
 // RetrieveIdentity retrieves the identity of the user from the context.
-// Raise http error when the identity doesn't exist
+// raise: Raise a http error when the identity doesn't exist.
 func RetrieveIdentity(c *gin.Context, raise bool) (identity *model.Identity, exist bool) {
 	id, exist := c.Get("identity")
 	if !exist {
