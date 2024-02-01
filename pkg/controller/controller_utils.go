@@ -12,7 +12,7 @@ func RetrievePagination(c *gin.Context) (page, limit uint64) {
 
 	limitStr := c.Query("limit")
 
-	// convert string to uint64
+	// Convert string to uint64
 	page, err := strconv.ParseUint(pageStr, 10, 64)
 	if err != nil {
 		page = 1
@@ -23,18 +23,17 @@ func RetrievePagination(c *gin.Context) (page, limit uint64) {
 		limit = 10
 	}
 
-	return
+	return page, limit
 }
 
 // RetrieveIdentity retrieves the identity of the user from the context.
-// raise: if true, raise a http error if the identity does not exist
+// Raise http error when the identity doesn't exist
 func RetrieveIdentity(c *gin.Context, raise bool) (identity *model.Identity, exist bool) {
 	id, exist := c.Get("identity")
 	if !exist {
 		if raise {
-			// raise not login error
 			c.AbortWithStatusJSON(401, model.Response{
-				Msg: "not login",
+				Msg: "Login Required",
 			})
 		}
 		return nil, false

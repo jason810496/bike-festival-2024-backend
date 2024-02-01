@@ -31,7 +31,7 @@ func (env *DBEnv) Dialect(kind string) gorm.Dialector {
 		dsn := fmt.Sprintf("sqlserver://%s:%s@%s:%d?database=%s", env.Username, env.Password, env.Host, env.Port, env.Database)
 		return sqlserver.Open(dsn)
 	default:
-		panic("unsupported database kind")
+		panic("Unsupported database kind")
 	}
 }
 

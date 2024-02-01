@@ -4,12 +4,13 @@ import (
 	"bikefest/pkg/model"
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type EventController struct {
@@ -95,11 +96,11 @@ func (ctrl *EventController) UpdateEvent(c *gin.Context) {
 	identity, _ := RetrieveIdentity(c, true)
 	if identity.UserID != "admin" {
 		c.AbortWithStatusJSON(403, model.Response{
-			Msg: "permission denied",
+			Msg: "Permission denied",
 		})
 		return
 	}
-	_ = identity.UserID
+	// _ = identity.UserID
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
 		c.AbortWithStatusJSON(400, model.Response{
