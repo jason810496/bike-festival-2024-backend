@@ -64,7 +64,7 @@ func App(opts ...AppOpts) *Application {
 	return app
 }
 
-// Run run the application
+// Run the application
 func (app *Application) Run() {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", app.Env.Server.Port),
@@ -86,7 +86,7 @@ func (app *Application) Run() {
 		log.Fatalf("Error starting server: %v", err)
 
 	case <-shutdown:
-		log.Println("shutting down...")
+		log.Println("Shutting down the server...")
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()

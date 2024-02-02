@@ -5,11 +5,12 @@ import (
 	"bikefest/pkg/line_utils"
 	"bikefest/pkg/model"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	social "github.com/kkdai/line-login-sdk-go"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	social "github.com/kkdai/line-login-sdk-go"
 )
 
 func NewOAuthController(lineSocialClient *social.Client, env *bootstrap.Env, userSvc model.UserService) *OAuthController {
@@ -49,7 +50,7 @@ func (ctrl *OAuthController) LineLogin(c *gin.Context) {
 	state := originalUrl + "$" + social.GenerateNonce()
 	if len(state) == 0 {
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
-			Msg: "login with the wrong way, please try again in official website",
+			Msg: "Login with the wrong way, please try again in official website",
 		})
 		return
 	}
@@ -78,7 +79,7 @@ func (ctrl *OAuthController) LineLoginCallback(c *gin.Context) {
 	stateInCookie, err := c.Cookie("state")
 	if err != nil || stateInCookie != state {
 		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
-			Msg: "state cookie is invalid",
+			Msg: "State cookie is invalid",
 		})
 		return
 	}

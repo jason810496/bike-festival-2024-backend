@@ -74,7 +74,7 @@ func (ctrl *UserController) GetUserByID(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.UserResponse{
-		Msg:  "get user by id",
+		Msg:  "Get user by id",
 		Data: user,
 	})
 }
@@ -95,7 +95,7 @@ func (ctrl *UserController) RefreshToken(c *gin.Context) {
 	refreshToken, err := c.Cookie("refresh_token")
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, model.Response{
-			Msg: "old authorization not found",
+			Msg: "Old authorization not found",
 		})
 		return
 	}
@@ -156,7 +156,7 @@ func (ctrl *UserController) GetUsers(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, model.UserListResponse{
-		Msg:  "get users",
+		Msg:  "Get users",
 		Data: users,
 	})
 }
@@ -193,7 +193,7 @@ func (ctrl *UserController) Logout(c *gin.Context) {
 	c.SetCookie("access_token", "", -1, "/", "", false, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, model.Response{
-		Msg: "logout success",
+		Msg: "Logout success",
 	})
 }
 
@@ -274,7 +274,7 @@ func (ctrl *UserController) FakeRegister(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, model.Response{
-		Msg: "fake register success",
+		Msg: "Fake register success",
 	})
 }
 
@@ -295,7 +295,7 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 	userID := identity.UserID
 	var request model.CreateEventRequest
 	if err := c.ShouldBind(&request); err != nil {
-		c.AbortWithStatusJSON(400, model.Response{
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -303,14 +303,14 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 
 	eventTimeStart, err := time.Parse(model.EventTimeLayout, request.EventTimeStart)
 	if err != nil {
-		c.AbortWithStatusJSON(400, model.Response{
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
 	eventTimeEnd, err := time.Parse(model.EventTimeLayout, request.EventTimeEnd)
 	if err != nil {
-		c.AbortWithStatusJSON(400, model.Response{
+		c.AbortWithStatusJSON(http.StatusBadRequest, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -322,7 +322,7 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 		EventDetail:    request.EventDetail,
 	}
 	if newEvent.ID == nil {
-		// calculate event id from, event time start, event time end, event detail
+		// Calculate event id from, event time start, event time end, event detail
 		newEventId, err := model.CaculateEventID(newEvent)
 		if err != nil {
 			return
@@ -332,7 +332,7 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 	_ = ctrl.eventSvc.Store(c, newEvent)
 	err = ctrl.userSvc.SubscribeEvent(c, userID, *newEvent.ID)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -340,13 +340,13 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 
 	err = ctrl.asynqService.EnqueueEventNotification(c, userID, *request.ID, request.EventTimeStart)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
 
-	c.JSON(200, model.EventResponse{
+	c.JSON(http.StatusOK, model.EventResponse{
 		Data: newEvent,
 	})
 }
@@ -370,7 +370,7 @@ func (ctrl *UserController) SubscribeAllEvent(c *gin.Context) {
 
 	events, err := ctrl.eventSvc.FindAll(c, 1, 100)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -379,7 +379,7 @@ func (ctrl *UserController) SubscribeAllEvent(c *gin.Context) {
 	for _, event := range events {
 		err = ctrl.userSvc.SubscribeEvent(c, userID, *event.ID)
 		if err != nil {
-			c.AbortWithStatusJSON(500, model.Response{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 				Msg: err.Error(),
 			})
 			return
@@ -391,7 +391,7 @@ func (ctrl *UserController) SubscribeAllEvent(c *gin.Context) {
 	for _, event := range events {
 		err := ctrl.asynqService.EnqueueEventNotification(c, userID, *event.ID, model.EventTimeLayout)
 		if err != nil {
-			c.AbortWithStatusJSON(500, model.Response{
+			c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 				Msg: err.Error(),
 			})
 			return
@@ -416,7 +416,7 @@ func (ctrl *UserController) UnScribeEvent(c *gin.Context) {
 	eventID := c.Param("event_id")
 	err := ctrl.userSvc.UnsubscribeEvent(c, userID, eventID)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
@@ -424,14 +424,14 @@ func (ctrl *UserController) UnScribeEvent(c *gin.Context) {
 
 	err = ctrl.asynqService.DeleteEventNotification(c, userID+eventID)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 		return
 	}
 
 	c.JSON(200, model.Response{
-		Msg: "delete success",
+		Msg: "Delete success",
 	})
 }
 
@@ -449,12 +449,12 @@ func (ctrl *UserController) GetUserSubscribeEvents(c *gin.Context) {
 	identity, _ := RetrieveIdentity(c, true)
 	events, err := ctrl.userSvc.GetUserSubscribeEvents(c, identity.UserID)
 	if err != nil {
-		c.AbortWithStatusJSON(500, model.Response{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
 	}
 
-	c.JSON(200, model.EventListResponse{
+	c.JSON(http.StatusOK, model.EventListResponse{
 		Data: events,
 	})
 }

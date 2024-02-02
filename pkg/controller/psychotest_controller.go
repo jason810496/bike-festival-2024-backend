@@ -17,7 +17,9 @@ func NewPsychoTestController(db *gorm.DB) *PsychoTestController {
 	return &PsychoTestController{db: db}
 }
 
-// CreateType create new psychological type
+// Function: CreateType
+// The function is responsible for creating
+// new psychological type
 func (controller *PsychoTestController) CreateType(context *gin.Context) {
 	newType := context.Query("type")
 
@@ -34,14 +36,12 @@ func (controller *PsychoTestController) CreateType(context *gin.Context) {
 		Count: 0,
 	}
 
-	result := controller.db.Create(&record)
-
-	if result.Error != nil {
+	if result := controller.db.Create(&record); result.Error != nil {
 		context.JSON(http.StatusBadRequest, gin.H{
 			"status":  "Failed",
 			"message": result.Error,
 		})
-		panic(result.Error)
+		return
 	}
 
 	context.JSON(http.StatusOK, gin.H{
@@ -50,7 +50,9 @@ func (controller *PsychoTestController) CreateType(context *gin.Context) {
 	})
 }
 
-// TypeAddCount Add the count of selected psychological type
+// Function: TypeAddCount
+// The function is responsible for adding
+// the count of selected psychological type
 func (controller *PsychoTestController) TypeAddCount(context *gin.Context) {
 	testType := context.PostForm("type")
 	count, _ := strconv.Atoi(context.PostForm("count"))
@@ -83,7 +85,9 @@ func (controller *PsychoTestController) TypeAddCount(context *gin.Context) {
 	})
 }
 
-// CountTypePercentage retrieve the percentage of each type
+// Function: CountTypePercentage
+// The function is responsible for retreval of
+// of the percentage of each type
 func (controller *PsychoTestController) CountTypePercentage(context *gin.Context) {
 	var queryTypes []*model.PsychoTest
 
@@ -107,7 +111,7 @@ func (controller *PsychoTestController) CountTypePercentage(context *gin.Context
 	if sum == 0 {
 		context.JSON(http.StatusNotFound, gin.H{
 			"status":  "Failed",
-			"message": "No tested data",
+			"message": "No test data",
 		})
 	}
 
