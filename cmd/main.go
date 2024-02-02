@@ -32,11 +32,12 @@ func ReverseProxy() gin.HandlerFunc {
 			originalURL := *c.Request.URL
 
 			// Set the scheme and host
-			req.URL.Scheme = "http" // or "https" if your target is using SSL
+			// Set req.URL.Scheme as "http" or "https" based on the protocol your target is using
+			req.URL.Scheme = "http"
 			req.URL.Host = c.Request.Host
 
-			// if the suffix is /docs, then we need to change it to /swagger/index.html
-			// otherwise, we need to substitute /docs with /swagger
+			// If the suffix is '/docs', then we need to change it to '/swagger/index.html'
+			// Otherwise, we need to substitute '/docs' with '/swagger'
 			if originalURL.Path == "/docs/" {
 				req.URL.Path = "/swagger/index.html"
 			} else {
@@ -64,10 +65,10 @@ func SetUpAsynqMon(app *bootstrap.Application) {
 }
 
 func main() {
-	// init config
+	// Init config
 	app := bootstrap.App()
 
-	// init services
+	// Init services
 	userService := service.NewUserService(app.Conn, app.Cache)
 	eventService := service.NewEventService(app.Conn, app.Cache)
 	asynqService := service.NewAsynqService(app.AsynqClient, app.AsyncqInspector, app.Env)
@@ -78,7 +79,7 @@ func main() {
 		AsynqService: asynqService,
 	}
 
-	// init routes
+	// Init routes
 	router.RegisterRoutes(app, services)
 
 	// setup swagger
@@ -95,6 +96,5 @@ func main() {
 	)
 	app.Engine.GET("/docs/*any", ReverseProxy())
 
-	// run app
 	app.Run()
 }
