@@ -1,4 +1,4 @@
-name: Build and Push Docker Image on Tag
+name: Build and Push Docker Notifier Image on Tag
 
 on:
   push:
@@ -11,6 +11,7 @@ env:
 
 jobs:
   build:
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
