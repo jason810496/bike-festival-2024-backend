@@ -25,8 +25,18 @@ type UserServiceImpl struct {
 }
 
 func (us *UserServiceImpl) SubscribeEvent(ctx context.Context, userID string, eventID string) error {
-	if err := us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Find(&model.Event{ID: &eventID}); err == nil {
+	event := &model.Event{}
+	err := us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Find(event, &model.Event{ID: &eventID})
+	if err != nil {
+		return err
+	}
+	if event.ID != nil {
 		return errors.New("already subscribed this event")
+	}
+	// Check if events exceed 10
+	// TODO: meow
+	if count := us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Count(); count >= 10 {
+		return errors.New("exceeds the maximum number of subscriptions")
 	}
 	return us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Append(&model.Event{ID: &eventID})
 }

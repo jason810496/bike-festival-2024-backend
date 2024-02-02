@@ -5,6 +5,7 @@ import (
 	"bikefest/pkg/model"
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"time"
 
@@ -41,10 +42,15 @@ func newEventNotification(userId, eventId string) (*asynq.Task, error) {
 // the taskID is the userID + eventID
 func (as *AsynqServiceImpl) DeleteEventNotification(ctx context.Context, taskID string) error {
 	err := as.inspector.DeleteTask("default", taskID)
-	if err != nil {
+	switch {
+	case errors.Is(err, asynq.ErrTaskNotFound):
+		log.Printf("Task with ID %q not found", taskID)
+		return nil
+	case err != nil:
 		return err
+	default:
+		return nil
 	}
-	return nil
 }
 
 func (as *AsynqServiceImpl) EnqueueEventNotification(ctx context.Context, userID, eventID, eventStartTime string) error {
@@ -59,8 +65,11 @@ func (as *AsynqServiceImpl) EnqueueEventNotification(ctx context.Context, userID
 	processTime = processTime.Add(-time.Minute * 30)
 
 	info, err := as.client.Enqueue(t, asynq.ProcessAt(processTime), asynq.TaskID(userID+eventID))
-
-	if err != nil {
+	switch {
+	case errors.Is(err, asynq.ErrTaskIDConflict):
+		log.Printf("Task with ID %q already exists", userID+eventID)
+		return nil
+	case err != nil:
 		return err
 	}
 	log.Printf(" [*] Successfully enqueued task: %+v\nThe task should be executed at %s", info, processTime.String())
