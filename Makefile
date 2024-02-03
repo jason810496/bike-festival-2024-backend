@@ -1,3 +1,5 @@
+.PHONY: help install build serve generate dev-up dev-migrate dev-down dev-teardown stage-up test run docs bot
+
 BLUE = \033[34m
 NC = \033[0m
 
@@ -49,7 +51,7 @@ run: ## Run the application
 	./script/run.sh dev run
 
 docs: install ## Generate the swagger docs
-	swag init --parseDependency --parseInternal -g ./cmd/main.go
+	swag init --parseDependency --parseInternal -g ./cmd/backend/main.go
 
 bot: ## Run the bot
 	./script/run.sh dev bot

@@ -12,6 +12,10 @@ import (
 	"gorm.io/gorm"
 )
 
+var (
+	ErrEventExceedsMaxSubscriptions = errors.New("exceeds the maximum number of subscriptions")
+)
+
 func NewUserService(db *gorm.DB, cache *redis.Client) model.UserService {
 	return &UserServiceImpl{
 		db:    db,
