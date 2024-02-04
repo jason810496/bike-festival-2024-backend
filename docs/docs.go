@@ -353,13 +353,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request - Invalid input",
+                        "description": "Bad Request - Invalid input, such as invalid time format or missing required fields",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - User already subscribed to the event",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - User has exceeded the maximum number of subscriptions",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal Server Error - Error storing the event, subscribing the user, or enqueuing the event notification",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
@@ -561,6 +573,18 @@ const docTemplate = `{
                             "$ref": "#/definitions/bikefest_pkg_model.UserResponse"
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized: Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -684,6 +708,12 @@ const docTemplate = `{
                         "description": "User successfully retrieved",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.UserResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
                     },
                     "500": {
