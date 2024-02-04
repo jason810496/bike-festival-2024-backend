@@ -14,6 +14,8 @@ import (
 
 var (
 	ErrEventExceedsMaxSubscriptions = errors.New("exceeds the maximum number of subscriptions")
+	ErrEventAlreadySubscribed       = errors.New("already subscribed to this event")
+	ErrUserNotFound                 = errors.New("user not found")
 )
 
 func NewUserService(db *gorm.DB, cache *redis.Client) model.UserService {
@@ -35,12 +37,12 @@ func (us *UserServiceImpl) SubscribeEvent(ctx context.Context, userID string, ev
 		return err
 	}
 	if event.ID != nil {
-		return errors.New("already subscribed this event")
+		return ErrEventAlreadySubscribed
 	}
 	// Check if events exceed 10
 	// TODO: meow
 	if count := us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Count(); count >= 10 {
-		return errors.New("exceeds the maximum number of subscriptions")
+		return ErrEventExceedsMaxSubscriptions
 	}
 	return us.db.WithContext(ctx).Model(&model.User{ID: userID}).Association("Events").Append(&model.Event{ID: &eventID})
 }
@@ -75,7 +77,10 @@ func (us *UserServiceImpl) CreateFakeUser(ctx context.Context, user *model.User)
 func (us *UserServiceImpl) GetUserByID(ctx context.Context, id string) (*model.User, error) {
 	user := &model.User{}
 	err := us.db.WithContext(ctx).Where(&model.User{ID: id}).First(user).Error
-	if err != nil {
+	switch {
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		return nil, ErrUserNotFound
+	case err != nil:
 		return nil, err
 	}
 	return user, nil

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -9,6 +10,7 @@ import (
 
 	"bikefest/pkg/bootstrap"
 	"bikefest/pkg/model"
+	"bikefest/pkg/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,13 +39,21 @@ func NewUserController(userSvc model.UserService, eventSvc model.EventService, a
 // @Produce json
 // @Security ApiKeyAuth
 // @Success 200 {object} model.UserResponse "Profile successfully retrieved"
+// @Failure 401 {object} model.Response "Unauthorized: Invalid or expired token"
+// @Failure 404 {object} model.Response "User not found"
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /users/profile [get]
 func (ctrl *UserController) Profile(c *gin.Context) {
 	identity, _ := RetrieveIdentity(c, true)
 	userID := identity.UserID
 	profile, err := ctrl.userSvc.GetUserByID(c, userID)
-	if err != nil {
+	switch {
+	case errors.Is(err, service.ErrUserNotFound):
+		c.AbortWithStatusJSON(http.StatusNotFound, model.Response{
+			Msg: "User not found",
+		})
+		return
+	case err != nil:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
@@ -62,12 +72,19 @@ func (ctrl *UserController) Profile(c *gin.Context) {
 // @Produce json
 // @Param user_id path string true "User ID"
 // @Success 200 {object} model.UserResponse "User successfully retrieved"
+// @Failure 404 {object} model.Response "User not found"
 // @Failure 500 {object} model.Response "Internal Server Error"
 // @Router /users/{user_id} [get]
 func (ctrl *UserController) GetUserByID(c *gin.Context) {
 	userID := c.Param("user_id")
 	user, err := ctrl.userSvc.GetUserByID(c, userID)
-	if err != nil {
+	switch {
+	case errors.Is(err, service.ErrUserNotFound):
+		c.AbortWithStatusJSON(http.StatusNotFound, model.Response{
+			Msg: "User not found",
+		})
+		return
+	case err != nil:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
@@ -287,8 +304,10 @@ func (ctrl *UserController) FakeRegister(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param request body model.CreateEventRequest true "Event Subscription Request"
 // @Success 200 {object} model.EventResponse "Successfully subscribed to the event"
-// @Failure 400 {object} model.Response "Bad Request - Invalid input"
-// @Failure 500 {object} model.Response "Internal Server Error"
+// @Failure 400 {object} model.Response "Bad Request - Invalid input, such as invalid time format or missing required fields"
+// @Failure 409 {object} model.Response "Conflict - User already subscribed to the event"
+// @Failure 422 {object} model.Response "Unprocessable Entity - User has exceeded the maximum number of subscriptions"
+// @Failure 500 {object} model.Response "Internal Server Error - Error storing the event, subscribing the user, or enqueuing the event notification"
 // @Router /users/events [post]
 func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 	identity, _ := RetrieveIdentity(c, true)
@@ -331,7 +350,18 @@ func (ctrl *UserController) SubscribeEvent(c *gin.Context) {
 	}
 	_ = ctrl.eventSvc.Store(c, newEvent)
 	err = ctrl.userSvc.SubscribeEvent(c, userID, *newEvent.ID)
-	if err != nil {
+	switch {
+	case errors.Is(err, service.ErrEventExceedsMaxSubscriptions):
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, model.Response{
+			Msg: "User has exceeded the maximum number of subscriptions",
+		})
+		return
+	case errors.Is(err, service.ErrEventAlreadySubscribed):
+		c.AbortWithStatusJSON(http.StatusConflict, model.Response{
+			Msg: "User already subscribed to the event",
+		})
+		return
+	case err != nil:
 		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
 			Msg: err.Error(),
 		})
