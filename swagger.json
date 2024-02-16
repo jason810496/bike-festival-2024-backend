@@ -4,7 +4,7 @@
         "contact": {}
     },
     "paths": {
-        "/event": {
+        "/events": {
             "get": {
                 "description": "Retrieves a list of all events with pagination",
                 "consumes": [
@@ -45,65 +45,10 @@
                         }
                     }
                 }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Subscribes a user to an event with the provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Subscribe to an event",
-                "parameters": [
-                    {
-                        "description": "Event Subscription Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.CreateEventRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully subscribed to the event",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.EventResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    }
-                }
             }
         },
-        "/event/user": {
+        "/events/test-store-all": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth // include this line if the endpoint is protected by an API key or other security mechanism": []
-                    }
-                ],
-                "description": "Retrieves a list of events associated with a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -113,76 +58,13 @@
                 "tags": [
                     "Event"
                 ],
-                "summary": "Get User Events",
-                "responses": {
-                    "200": {
-                        "description": "List of events associated with the user",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.EventListResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    }
-                }
+                "summary": "Store all events from the json file in the frontend repo",
+                "responses": {}
             }
         },
-        "/event/{event_id}": {
-            "delete": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Deletes a specific event by its ID for a given user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Event"
-                ],
-                "summary": "Delete event",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Event ID",
-                        "name": "event_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Event successfully deleted",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/event/{id}": {
+        "/events/{id}": {
             "get": {
-                "description": "Retrieves an event using its unique ID",
+                "description": "Retrieves an event by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -192,7 +74,7 @@
                 "tags": [
                     "Event"
                 ],
-                "summary": "Get event by ID",
+                "summary": "Get an event by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -204,9 +86,15 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Event successfully retrieved",
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.EventResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
                     },
                     "500": {
@@ -274,7 +162,304 @@
                 }
             }
         },
-        "/user/login/{user_id}": {
+        "/line-login/auth": {
+            "get": {
+                "description": "Redirects the user to LINE's OAuth service for authentication.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Initiate LINE OAuth login",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Redirect path after login",
+                        "name": "redirect_path",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "301": {
+                        "description": "Redirect to the target URL",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/line-login/callback": {
+            "get": {
+                "description": "Handles the callback from LINE's OAuth service and redirects the user to the frontend with the tokens in the query and cookies.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Handle LINE OAuth callback",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "State",
+                        "name": "state",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "301": {
+                        "description": "Redirect to the frontend",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Retrieves a list of users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Users",
+                "responses": {
+                    "200": {
+                        "description": "List of users successfully retrieved",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.UserListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/events": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves a list of events associated with a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User Events",
+                "responses": {
+                    "200": {
+                        "description": "List of events associated with the user",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.EventListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Subscribes a user to an event with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Subscribe to an event",
+                "parameters": [
+                    {
+                        "description": "Event Subscription Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.CreateEventRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully subscribed to the event",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input, such as invalid time format or missing required fields",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - User already subscribed to the event",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity - User has exceeded the maximum number of subscriptions",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error - Error storing the event, subscribing the user, or enqueuing the event notification",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/events/all": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Subscribes a user to all events",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Subscribe to all events, and if remind is true, it will send all the event notification to user immediately",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Send the Line notification immediately",
+                        "name": "remind",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully subscribed to the event",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.EventResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request - Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/events/{event_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes a specific event by its ID for a given user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event successfully deleted",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login/{user_id}": {
             "get": {
                 "description": "Simulates a login process for a user by generating fake access and refresh tokens",
                 "consumes": [
@@ -312,7 +497,7 @@
                 }
             }
         },
-        "/user/logout": {
+        "/users/logout": {
             "post": {
                 "security": [
                     {
@@ -330,15 +515,6 @@
                     "User"
                 ],
                 "summary": "User logout",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer [token]",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Logout successful",
@@ -361,7 +537,7 @@
                 }
             }
         },
-        "/user/profile": {
+        "/users/profile": {
             "get": {
                 "security": [
                     {
@@ -379,20 +555,23 @@
                     "User"
                 ],
                 "summary": "Profile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Profile successfully retrieved",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.UserResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized: Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
                         }
                     },
                     "500": {
@@ -404,8 +583,8 @@
                 }
             }
         },
-        "/user/refresh_token": {
-            "post": {
+        "/users/refresh_token": {
+            "get": {
                 "description": "Refreshes the access and refresh tokens for a user",
                 "consumes": [
                     "application/json"
@@ -417,17 +596,6 @@
                     "Authentication"
                 ],
                 "summary": "Refresh User Token",
-                "parameters": [
-                    {
-                        "description": "Refresh Token",
-                        "name": "refreshToken",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.RefreshTokenRequest"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Access and Refresh Tokens successfully generated",
@@ -456,7 +624,7 @@
                 }
             }
         },
-        "/user/register": {
+        "/users/register": {
             "post": {
                 "description": "Register a fake user for testing purposes",
                 "consumes": [
@@ -502,7 +670,7 @@
                 }
             }
         },
-        "/user/{user_id}": {
+        "/users/{user_id}": {
             "get": {
                 "description": "Retrieves a user's information by their ID",
                 "consumes": [
@@ -531,33 +699,10 @@
                             "$ref": "#/definitions/bikefest_pkg_model.UserResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "404": {
+                        "description": "User not found",
                         "schema": {
                             "$ref": "#/definitions/bikefest_pkg_model.Response"
-                        }
-                    }
-                }
-            }
-        },
-        "/users": {
-            "get": {
-                "description": "Retrieves a list of users",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Get Users",
-                "responses": {
-                    "200": {
-                        "description": "List of users successfully retrieved",
-                        "schema": {
-                            "$ref": "#/definitions/bikefest_pkg_model.UserListResponse"
                         }
                     },
                     "500": {
@@ -573,20 +718,20 @@
     "definitions": {
         "bikefest_pkg_model.CreateEventRequest": {
             "type": "object",
-            "required": [
-                "event_id"
-            ],
             "properties": {
                 "event_detail": {
-                    "type": "string"
-                },
-                "event_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "{\"title\":\"test event\",\"description\":\"test event description\"}"
                 },
                 "event_time_end": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021/01/01 00:00"
                 },
                 "event_time_start": {
+                    "type": "string",
+                    "example": "2021/01/01 00:00"
+                },
+                "id": {
                     "type": "string"
                 }
             }
@@ -604,9 +749,6 @@
         },
         "bikefest_pkg_model.Event": {
             "type": "object",
-            "required": [
-                "event_id"
-            ],
             "properties": {
                 "createdAt": {
                     "type": "string"
@@ -618,10 +760,6 @@
                     "description": "the `EventDetail` field store the event detail in json format, this would be parsed when send to line message API",
                     "type": "string"
                 },
-                "event_id": {
-                    "description": "the event id is defne at the frontend",
-                    "type": "string"
-                },
                 "event_time_end": {
                     "type": "string"
                 },
@@ -629,12 +767,10 @@
                     "type": "string"
                 },
                 "id": {
+                    "description": "the event id is defne at the frontend, if frontend don't have event id, the event id would be calculated by the hash of event detail and event time",
                     "type": "string"
                 },
                 "updatedAt": {
-                    "type": "string"
-                },
-                "user_id": {
                     "type": "string"
                 }
             }
@@ -660,17 +796,6 @@
                     "$ref": "#/definitions/bikefest_pkg_model.Event"
                 },
                 "msg": {
-                    "type": "string"
-                }
-            }
-        },
-        "bikefest_pkg_model.RefreshTokenRequest": {
-            "type": "object",
-            "required": [
-                "refresh_token"
-            ],
-            "properties": {
-                "refresh_token": {
                     "type": "string"
                 }
             }
