@@ -21,7 +21,7 @@ FROM alpine:latest AS runtime
 RUN apk --no-cache add ca-certificates
 
 # Copy the binary from the build stage to the runtime stage
-COPY --from=build /app/main /app
-
+COPY --from=build /app/main /app/main
+WORKDIR /app
 # Set the entry point to execute the binary directly
-ENTRYPOINT ["/app"]
+ENTRYPOINT /app/main
