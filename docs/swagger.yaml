@@ -451,6 +451,33 @@ paths:
         event notification to user immediately
       tags:
       - User
+  /users/events/delete/{event_id}:
+    post:
+      consumes:
+      - application/json
+      description: Deletes a specific event by its ID for a given user
+      parameters:
+      - description: Event ID
+        in: path
+        name: event_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Event successfully deleted
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/bikefest_pkg_model.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete event
+      tags:
+      - User
   /users/login/{user_id}:
     get:
       consumes:
