@@ -17,7 +17,8 @@ RUN go mod download
 RUN CGO_ENABLED=1 GOOS=linux go build -o /app/main ./cmd/backend/main.go
 
 # Runtime Stage
-FROM busybox AS runtime
+FROM alpine:latest AS runtime
+RUN apk --no-cache add ca-certificates
 
 # Copy the binary from the build stage to the runtime stage
 COPY --from=build /app/main /app

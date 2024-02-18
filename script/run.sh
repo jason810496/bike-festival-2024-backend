@@ -61,11 +61,11 @@ case "$action" in
     start|stop|teardown)
         export_env $mode
         if [ "$action" = "start" ]; then
-            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose.${mode}.yaml up -d ${@:3}
+            $DOCKER_COMP -f docker/docker-compose.${mode}.yaml up -d ${@:3}
         elif [ "$action" = "stop" ]; then
-            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose.${mode}.yaml down 
+            $DOCKER_COMP -f docker/docker-compose.${mode}.yaml down
         elif [ "$action" = "teardown" ]; then
-            $DOCKER_COMP -f docker/docker-compose.yaml -f docker/docker-compose.${mode}.yaml down --remove-orphans -v
+            $DOCKER_COMP -f docker/docker-compose.${mode}.yaml down --remove-orphans -v
             echo "*** WARNING ***"
             echo "Please run 'sudo rm -rf docker/volumes' by yourself to remove the persistent volumes"
         else
