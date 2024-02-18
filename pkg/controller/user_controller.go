@@ -465,6 +465,43 @@ func (ctrl *UserController) UnScribeEvent(c *gin.Context) {
 	})
 }
 
+
+// UnScribeEvent godoc
+// @Summary Delete event
+// @Description Deletes a specific event by its ID for a given user
+// @Tags User
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param event_id path string true "Event ID"
+// @Success 200 {object} model.Response "Event successfully deleted"
+// @Failure 500 {object} model.Response "Internal Server Error"
+// @Router /users/events/delete/{event_id} [post]
+func (ctrl *UserController) UnScribeDeleteEvent(c *gin.Context) {
+	identity, _ := RetrieveIdentity(c, true)
+	userID := identity.UserID
+	eventID := c.Param("event_id")
+	err := ctrl.userSvc.UnsubscribeEvent(c, userID, eventID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+
+	err = ctrl.asynqService.DeleteEventNotification(c, userID+eventID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, model.Response{
+			Msg: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(200, model.Response{
+		Msg: "Delete success",
+	})
+}
+
 // GetUserSubscribeEvents godoc
 // @Summary Get User Events
 // @Description Retrieves a list of events associated with a user
