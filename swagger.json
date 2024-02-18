@@ -416,6 +416,49 @@
                 }
             }
         },
+        "/users/events/delete/{event_id}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes a specific event by its ID for a given user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Event successfully deleted",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/bikefest_pkg_model.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/users/events/{event_id}": {
             "delete": {
                 "security": [
