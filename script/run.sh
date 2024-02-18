@@ -44,7 +44,7 @@ case "$mode" in
         exit 0
         ;;
         
-    dev|stage|test)
+    dev|stage|test|prod)
         # All actions for these modes are handled in the next switch case block
         ;;
 

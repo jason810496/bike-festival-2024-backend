@@ -3,13 +3,15 @@ package main
 import (
 	"bikefest/docs"
 	"bikefest/pkg/bootstrap"
+	"bikefest/pkg/model"
 	"bikefest/pkg/router"
 	"bikefest/pkg/service"
 	"fmt"
-	"github.com/hibiken/asynq"
-	"github.com/hibiken/asynqmon"
 	"net/http"
 	"net/http/httputil"
+
+	"github.com/hibiken/asynq"
+	"github.com/hibiken/asynqmon"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -78,6 +80,9 @@ func main() {
 		EventService: eventService,
 		AsynqService: asynqService,
 	}
+
+	// Migration
+	app.Conn.AutoMigrate(&model.User{}, &model.Event{}, &model.PsychoTest{})
 
 	// Init routes
 	router.RegisterRoutes(app, services)

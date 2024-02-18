@@ -55,3 +55,6 @@ docs: install ## Generate the swagger docs
 
 bot: ## Run the bot
 	./script/run.sh dev bot
+
+prod-up: ## Start the container for production
+	./script/run.sh prod start
